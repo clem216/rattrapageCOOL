@@ -133,6 +133,6 @@ public class NetworkClient extends Thread implements Runnable{
 	 */
 	public void die(NetworkCode reason) {
 		this.isRunning = false;
-		this.agent.onClientDied(this, reason);
+		this.agent.onClientDisconnected(this, reason);
 	}
 }
