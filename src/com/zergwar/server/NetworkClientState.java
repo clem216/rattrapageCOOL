@@ -1,4 +1,4 @@
-package com.zergwar.network;
+package com.zergwar.server;
 
 public enum NetworkClientState {
 	UNKNOWN,

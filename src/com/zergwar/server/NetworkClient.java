@@ -1,4 +1,4 @@
-package com.zergwar.network;
+package com.zergwar.server;
 
 import java.awt.Color;
 import java.io.IOException;

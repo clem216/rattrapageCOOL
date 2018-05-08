@@ -1,4 +1,4 @@
-package com.zergwar.tests;
+package com.zergwar.client;
 
 public enum ClientState {
 

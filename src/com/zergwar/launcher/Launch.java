@@ -1,9 +1,9 @@
-package com.zergwar.server.launcher;
+package com.zergwar.launcher;
 
 import javax.swing.JOptionPane;
 
-import com.zergwar.network.GameServer;
-import com.zergwar.tests.TestClient;
+import com.zergwar.client.GameClient;
+import com.zergwar.server.GameServer;
 import com.zergwar.util.log.Logger;
 
 /**
@@ -70,6 +70,6 @@ public class Launch {
 	 */
 	public void startTestClient() {
 		Logger.log("Démarrage d'un client de test !");
-		new TestClient("127.0.0.1", 995);
+		new GameClient("127.0.0.1", 995);
 	}
 }

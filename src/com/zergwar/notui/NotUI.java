@@ -15,17 +15,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JFrame;
 
+import com.zergwar.client.GameClient;
+import com.zergwar.client.RemotePlayer;
 import com.zergwar.common.Planet;
 import com.zergwar.common.Route;
-import com.zergwar.tests.RemotePlayer;
-import com.zergwar.tests.TestClient;
 
 public class NotUI extends JFrame {
 
 	// GENERIC
 	private static final long serialVersionUID = 1L;
 	private Font regular, bold;
-	private TestClient client;
+	private GameClient client;
 	
 	// STATIC
 	public static final int MENU_ID_PROBING      = 0;
@@ -40,7 +40,7 @@ public class NotUI extends JFrame {
 	// Graphics-related
 	private BufferStrategy bufferStrategy;
 	
-	public NotUI(TestClient client) {
+	public NotUI(GameClient client) {
 		this.client = client;
 		this.menuID = MENU_ID_PROBING;
 		this.renderTimer = new Timer();
@@ -159,7 +159,7 @@ public class NotUI extends JFrame {
 			);
 			
 			drawCenteredString(g, Color.WHITE, regular, p.getName(), (int)p.getX() + 75, (int)p.getY() + 100+ p.getDiameter() / 4 + 20);
-			drawCenteredString(g, p.getOwnerColor(), regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
+			drawCenteredString(g, Color.gray, regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
 		}
 		
 		// affiche les joueurs connectés

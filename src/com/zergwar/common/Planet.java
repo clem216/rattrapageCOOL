@@ -1,7 +1,5 @@
 package com.zergwar.common;
 
-import java.awt.Color;
-
 public class Planet {
 
 	private String name;
@@ -9,7 +7,6 @@ public class Planet {
 	private float coordY;
 	private int diameter;
 	private int ownerID;
-	private Player owner;
 	private int armyCount;
 	
 	public Planet(String name, Float coordX, Float coordY, Integer diameter, int ownerID, int armyCount) {
@@ -52,14 +49,6 @@ public class Planet {
 	public int getDiameter() {
 		return this.diameter;
 	}
-
-	/**
-	 * Renvoie le propriétaire de la planète
-	 * @return
-	 */
-	public Player getOwner() {
-		return this.owner;
-	}
 	
 	/**
 	 * Renvoie l'ID du propriétaire de la planète
@@ -75,10 +64,5 @@ public class Planet {
 	 */
 	public int getArmyCount() {
 		return this.armyCount;
-	}
-
-	public Color getOwnerColor() {
-		if(this.owner == null) return Color.GRAY;
-		else return this.owner.getColor();
 	}
 }

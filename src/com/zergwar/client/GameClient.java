@@ -1,4 +1,4 @@
-package com.zergwar.tests;
+package com.zergwar.client;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -12,7 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.zergwar.common.Galaxy;
 import com.zergwar.common.Planet;
 import com.zergwar.common.Route;
-import com.zergwar.network.NetworkCode;
 import com.zergwar.network.packets.Packet;
 import com.zergwar.network.packets.Packet0Handshake;
 import com.zergwar.network.packets.Packet1Planet;
@@ -23,10 +22,11 @@ import com.zergwar.network.packets.Packet5PlayerInfo;
 import com.zergwar.network.packets.Packet6ProbePing;
 import com.zergwar.network.packets.Packet7ProbePong;
 import com.zergwar.notui.NotUI;
+import com.zergwar.server.NetworkCode;
 import com.zergwar.util.log.Logger;
 import com.zergwar.util.math.ByteUtils;
 
-public class TestClient {
+public class GameClient {
 
 	private NotUI ui;
 	private NetworkThread networkThread;
@@ -42,7 +42,7 @@ public class TestClient {
 	
 	private Timer onlineVerifyTimer;
 	
-	public TestClient(String serverIP, int port) {
+	public GameClient(String serverIP, int port) {
 		this.initNotUI();
 		this.state = ClientState.IDLE;
 		this.galaxy = new Galaxy();
@@ -250,7 +250,7 @@ public class TestClient {
 	 **********************************/
 	public class NetworkThread extends Thread implements Runnable {
 		
-		private TestClient client;
+		private GameClient client;
 		private Socket socket;
 		private boolean isRunning;
 		private int state;
@@ -263,7 +263,7 @@ public class TestClient {
 		public static final int ST_READ_PKTYPE    = 3;
 		public static final int ST_READ_DATA      = 4;
 		
-		public NetworkThread(TestClient client) {
+		public NetworkThread(GameClient client) {
 			this.client = client;
 		}
 		
