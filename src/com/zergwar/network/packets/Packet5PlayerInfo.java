@@ -4,14 +4,18 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class Packet4PlayerLeave extends Packet {
+public class Packet5PlayerInfo extends Packet {
 
 	public int playerID;
+	public int playerColor;
+	public String playerName;
 	
-	public Packet4PlayerLeave(int id) {
+	public Packet5PlayerInfo(String name, int id, int color) {
 		super();
 		
+		this.playerName = name;
 		this.playerID = id;
+		this.playerColor = color;
 		
 		this.init();
 	}
@@ -22,6 +26,8 @@ public class Packet4PlayerLeave extends Packet {
 	public void init() {
 		try {
 			this.writeInt(this.playerID);
+			this.writeInt(this.playerColor);
+			this.writeString(this.playerName);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -32,7 +38,7 @@ public class Packet4PlayerLeave extends Packet {
 	 */
 	@Override
 	public int getPacketID() {
-		return Packet.ID_PACKET4PLAYERLEAVE;
+		return Packet.ID_PACKET5PLAYERINFO;
 	}
 	
 	/**
@@ -45,10 +51,14 @@ public class Packet4PlayerLeave extends Packet {
 		{
 			DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
 			int playerID = dis.readInt();
+			int playerColor = dis.readInt();
+			String playerName = dis.readUTF();
 			dis.close();
 			
-			return new Packet4PlayerLeave(
-				playerID
+			return new Packet5PlayerInfo(
+				playerName,
+				playerID,
+				playerColor
 			);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -57,7 +67,9 @@ public class Packet4PlayerLeave extends Packet {
 	}
 	
 	public String toString() {
-		return "[Packet4PlayerLeave ***\n-> PlayerID="+this.playerID
+		return "[Packet5PlayerInfo ***\n-> PlayerName="+this.playerName
+			  +"\n-> PlayerID="+this.playerID
+			  +"\n-> PlayerColor="+this.playerColor
 			  +"\n*** ]";
 	}
 }

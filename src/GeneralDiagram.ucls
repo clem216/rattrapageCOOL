@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.2.2" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+  <class id="1" language="java" name="com.zergwar.common.Galaxy" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/common/Galaxy.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="153" width="178" x="2484" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="com.zergwar.common.Planet" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/common/Planet.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="333" width="206" x="2476" y="1444"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="com.zergwar.common.Player" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/common/Player.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="207" width="120" x="2476" y="1817"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="com.zergwar.common.Route" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/common/Route.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="123" x="2404" y="1071"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="com.zergwar.network.GameServer" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/GameServer.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="261" width="297" x="2484" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="com.zergwar.network.NetworkAgent.NetworkAgentExecutor" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/NetworkAgent.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="189" width="217" x="2147" y="1071"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="com.zergwar.network.NetworkAgent" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/NetworkAgent.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="243" width="297" x="2147" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="com.zergwar.network.NetworkClient" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/NetworkClient.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="333" width="235" x="1872" y="1071"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="9" language="java" name="com.zergwar.network.NetworkClientState" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/NetworkClientState.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="171" width="222" x="1872" y="1444"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <enumeration id="10" language="java" name="com.zergwar.network.NetworkCode" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/NetworkCode.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="242" x="1407" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <interface id="11" language="java" name="com.zergwar.network.NetworkEventListener" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/NetworkEventListener.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="297" x="2683" y="1071"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <class id="12" language="java" name="com.zergwar.network.packets.Packet0Handshake" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/packets/Packet0Handshake.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="141" x="1508" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="13" language="java" name="com.zergwar.network.packets.PacketEntry" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/packets/PacketEntry.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="133" x="989" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="14" language="java" name="com.zergwar.network.packets.Packet" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/packets/Packet.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="513" width="176" x="1689" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="15" language="java" name="com.zergwar.network.packets.Packet2Route" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/packets/Packet2Route.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="189" width="159" x="1689" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="16" language="java" name="com.zergwar.network.packets.Packet3PlayerJoin" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/packets/Packet3PlayerJoin.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="141" x="1146" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="17" language="java" name="com.zergwar.network.packets.Packet1Planet" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/packets/Packet1Planet.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="261" width="219" x="1888" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="18" language="java" name="com.zergwar.network.packets.Packet4PlayerLeave" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/network/packets/Packet4PlayerLeave.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="135" width="141" x="1327" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="19" language="java" name="com.zergwar.notui.NotUIUtils" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/notui/NotUIUtils.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="117" width="146" x="650" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="20" language="java" name="com.zergwar.notui.NotUI" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/notui/NotUI.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="441" width="402" x="2998" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="21" language="java" name="com.zergwar.server.launcher.Launch" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/server/launcher/Launch.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="153" width="151" x="41" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="22" language="java" name="com.zergwar.tests.TestClient" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/tests/TestClient.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="261" width="182" x="2821" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="23" language="java" name="com.zergwar.tests.TestPackets" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/tests/TestPackets.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="99" width="113" x="836" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="24" language="java" name="com.zergwar.tests.ClientState" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/tests/ClientState.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="171" width="181" x="3440" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="25" language="java" name="com.zergwar.tests.TestClient.NetworkThread" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/tests/TestClient.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="333" width="235" x="2723" y="590"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="26" language="java" name="com.zergwar.util.config.Configuration" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/util/config/Configuration.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="225" width="165" x="232" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="27" language="java" name="com.zergwar.util.log.Logger" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/util/log/Logger.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="279" width="173" x="437" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="28" language="java" name="com.zergwar.util.math.ByteUtils" project="ZergWar" 
+    file="/ZergWar/src/com/zergwar/util/math/ByteUtils.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="243" width="205" x="1162" y="37"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <association id="29">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="30" name="dest">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="31" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="32">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="33" name="netAgent">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="34" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="35">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="36" name="galaxy">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="37" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="38">    
+    <end type="SOURCE" refId="22"/>    
+    <end type="TARGET" refId="25"/>  
+  </nesting>  
+  <generalization id="39">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <association id="40">    
+    <end type="SOURCE" refId="22" navigable="false">      
+      <attribute id="41" name="state">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="42" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="24" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="43">    
+    <bendpoint x="2692" y="590"/>    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="11"/>  
+  </realization>  
+  <nesting id="44">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="6"/>  
+  </nesting>  
+  <association id="45">    
+    <end type="SOURCE" refId="22" navigable="false">      
+      <attribute id="46" name="galaxy">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="47" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="48">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="49" name="routes">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="50" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="51">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <association id="52">    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="53" name="agent">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="54" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="55">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="56" name="source">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="57" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="58">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="59" name="clients">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="60" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="61">    
+    <end type="SOURCE" refId="22" navigable="false">      
+      <attribute id="62" name="ui">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="63" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="20" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="64">    
+    <bendpoint x="2557" y="1071"/>    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="65" name="planets">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="66" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="67">    
+    <end type="SOURCE" refId="18"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <association id="68">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="69" name="agent">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="70" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="71">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="72" name="agent">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="73" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="74">    
+    <end type="SOURCE" refId="25" navigable="false">      
+      <attribute id="75" name="client">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="76" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="22" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="77">    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="78" name="client">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="79" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="22" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="80">    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <generalization id="81">    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <association id="82">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="83" name="owner">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="84" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="85">    
+    <end type="SOURCE" refId="22" navigable="false">      
+      <attribute id="86" name="networkThread">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="87" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="25" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="88">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="89" name="listeners">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="90" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

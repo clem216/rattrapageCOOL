@@ -1,5 +1,7 @@
 package com.zergwar.common;
 
+import java.awt.Color;
+
 public class Player {
 
 	// Static
@@ -8,13 +10,15 @@ public class Player {
 	// Name
 	private String name;
 	private int id;
+	private Color color;
 	
 	/**
 	 * Instancie le player
 	 * @param name
 	 */
-	public Player(String name) {
+	public Player(String name, Color color) {
 		this.name = name;
+		this.color = color;
 		this.id = idCount++;
 	}
 	
@@ -32,5 +36,13 @@ public class Player {
 	 */
 	public String getName() {
 		return this.name;
+	}
+
+	/**
+	 * Renvoie la couleur du joueur
+	 * @return
+	 */
+	public Color getColor() {
+		return color;
 	}
 }

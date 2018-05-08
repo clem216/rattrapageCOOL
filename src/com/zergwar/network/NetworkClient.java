@@ -1,5 +1,6 @@
 package com.zergwar.network;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -13,13 +14,19 @@ public class NetworkClient extends Thread implements Runnable{
 	private NetworkAgent agent;
 	private Socket socket;
 	private boolean isRunning;
+	@SuppressWarnings("unused")
 	private NetworkClientState gameState;
 	private int state;
+	private int playerID;
+	private String playerName;
+	private Color playerColor;
 	
 	public static final int ST_WAIT_HANDSHAKE = 1;
 	public static final int ST_READ_DATALEN   = 2;
 	public static final int ST_READ_PKTYPE    = 3;
 	public static final int ST_READ_DATA      = 4;
+	
+	private long lastUpdateTimestamp;
 	
 	/**
 	 * Instancie un thread de réception client
@@ -29,6 +36,7 @@ public class NetworkClient extends Thread implements Runnable{
 	public NetworkClient(NetworkAgent agent, Socket socket) {
 		this.agent = agent;
 		this.socket = socket;
+		this.lastUpdateTimestamp = System.currentTimeMillis();
 		this.start();
 	}
 	
@@ -126,6 +134,7 @@ public class NetworkClient extends Thread implements Runnable{
 			}
 		} catch(Exception e) {
 			Logger.log("Client crashed : " + e);
+			e.printStackTrace();
 			die(NetworkCode.ERR_GENERIC);
 		}
 	}
@@ -175,9 +184,71 @@ public class NetworkClient extends Thread implements Runnable{
 					packet.build();
 					this.socket.getOutputStream().write(packet.getData());
 				} catch (IOException e) {
-					Logger.log("Can't send packet : "+packet+", reason follows.");
-					e.printStackTrace();
+					die(NetworkCode.ERR_GENERIC);
+					Logger.log("Can't send packet : "+packet+", client already disconnected. Skipping.");
 				}
 			}
+	}
+
+	/**
+	 * Définit l'ID du joueur
+	 * @param pID
+	 */
+	public void setPlayerId(int pID) {
+		this.playerID = pID;
+	}
+	
+	/**
+	 * Définit la couleur du joueur
+	 * @param color
+	 */
+	public void setColor(Color color) {
+		this.playerColor = color;
+	}
+	
+	/**
+	 * Renvoie l'ID du joueur
+	 */
+	public int getPlayerId() {
+		return this.playerID;
+	}
+	
+	/**
+	 * Renvoie la couleur du joueur
+	 * @return
+	 */
+	public Color getColor() {
+		return this.playerColor;
+	}
+
+	/**
+	 * Renvoie le nom du joueur
+	 * @return
+	 */
+	public String getPlayerName() {
+		return this.playerName;
+	}
+
+	/**
+	 * Définit le nom du joueur
+	 * @param string
+	 */
+	public void setPlayerName(String name) {
+		this.playerName = name;
+	}
+	
+	/**
+	 * Met à jour le timestamp de réception
+	 */
+	public void update() {
+		this.lastUpdateTimestamp = System.currentTimeMillis();
+	}
+
+	/**
+	 * Calcule l'inactivité du client
+	 * @return
+	 */
+	public long getInactivity() {
+		return System.currentTimeMillis() - lastUpdateTimestamp;
 	}
 }

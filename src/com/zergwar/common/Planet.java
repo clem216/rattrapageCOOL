@@ -1,5 +1,7 @@
 package com.zergwar.common;
 
+import java.awt.Color;
+
 public class Planet {
 
 	private String name;
@@ -73,5 +75,10 @@ public class Planet {
 	 */
 	public int getArmyCount() {
 		return this.armyCount;
+	}
+
+	public Color getOwnerColor() {
+		if(this.owner == null) return Color.GRAY;
+		else return this.owner.getColor();
 	}
 }

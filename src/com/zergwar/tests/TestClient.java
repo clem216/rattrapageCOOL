@@ -1,9 +1,13 @@
 package com.zergwar.tests;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.zergwar.common.Galaxy;
 import com.zergwar.common.Planet;
@@ -13,6 +17,11 @@ import com.zergwar.network.packets.Packet;
 import com.zergwar.network.packets.Packet0Handshake;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
+import com.zergwar.network.packets.Packet3PlayerJoin;
+import com.zergwar.network.packets.Packet4PlayerLeave;
+import com.zergwar.network.packets.Packet5PlayerInfo;
+import com.zergwar.network.packets.Packet6ProbePing;
+import com.zergwar.network.packets.Packet7ProbePong;
 import com.zergwar.notui.NotUI;
 import com.zergwar.util.log.Logger;
 import com.zergwar.util.math.ByteUtils;
@@ -25,13 +34,54 @@ public class TestClient {
 	private String status;
 	public Galaxy galaxy;
 	private ClientState state;
+	private CopyOnWriteArrayList<RemotePlayer> players;
+	private int playerID;
+	private String playerName;
+	private Color playerColor;
+	private long serverTimestamp;
+	
+	private Timer onlineVerifyTimer;
 	
 	public TestClient(String serverIP, int port) {
 		this.initNotUI();
 		this.state = ClientState.IDLE;
 		this.galaxy = new Galaxy();
+		this.players = new CopyOnWriteArrayList<RemotePlayer>();
 		this.networkThread = new NetworkThread(this);
 		this.networkThread.connect(serverIP, port);
+		this.playerID = -1;
+		this.playerColor = Color.black;
+		this.onlineVerifyTimer = new Timer();
+		
+		this.startOnlineVerify();
+	}
+
+	/**
+	 * Démarre la tache de monitoring de l'état
+	 * ONLINE
+	 */
+	private void startOnlineVerify()
+	{
+		this.onlineVerifyTimer.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				if(state != ClientState.IDLE
+				  && System.currentTimeMillis() - serverTimestamp > 400) {
+					onConnectionLost();
+				}
+			}
+			
+		}, 0, 400L);
+	}
+
+	/**
+	 * La connexion a été perdue
+	 */
+	private void onConnectionLost() {
+		this.state = ClientState.IDLE;
+		this.ui.setMenu(NotUI.MENU_ID_DISCONNECTED);
+		this.ui.repaint();
 	}
 
 	/**
@@ -69,7 +119,7 @@ public class TestClient {
 					this.state = ClientState.SYNCING_ROUTES;
 				} else if(this.state == ClientState.SYNCING_ROUTES)
 				{
-					this.state = ClientState.SYNCED;
+					this.state = ClientState.SYNCING_PLAYERS;
 					this.ui.setMenu(NotUI.MENU_ID_GAME);
 				}
 				break;
@@ -99,10 +149,55 @@ public class TestClient {
 					));
 				}
 				break;
+			case "Packet3PlayerJoin":
+				Packet3PlayerJoin jPacket = (Packet3PlayerJoin)packet;
+				this.status = "[ Player " + jPacket.playerName + " joined the game ]";
+				ui.repaint();
+				this.players.add(new RemotePlayer(
+					jPacket.playerName,
+					jPacket.playerID,
+					new Color(jPacket.playerColor)
+				));
+				break;
+			case "Packet4PlayerLeave":
+				Packet4PlayerLeave lPacket = (Packet4PlayerLeave)packet;
+				RemotePlayer ply = getRemotePlayerByID(lPacket.playerID);
+				if(ply != null) {
+					this.status = "[ Player " + ply.getName() + " left the game ]";
+					this.players.remove(ply);
+				}
+				ui.repaint();
+				break;
+			case "Packet5PlayerInfo":
+				Packet5PlayerInfo iPacket = (Packet5PlayerInfo)packet;
+				this.playerID = iPacket.playerID;
+				this.playerColor = new Color(iPacket.playerColor);
+				this.playerName = iPacket.playerName;
+				this.status = "[ Receiving your initial data from server ]";
+				ui.repaint();
+				break;
+			case "Packet6ProbePing":
+				Packet6ProbePing pPacket = (Packet6ProbePing)packet;
+				this.send(new Packet7ProbePong());
+				this.serverTimestamp = pPacket.timestamp;
+				this.ui.repaint();
 			default: break;
 		}
 	}
 	
+	/**
+	 * Renvoie le joueur possédant l'ID spécifié
+	 * @param playerID
+	 * @return
+	 */
+	public RemotePlayer getRemotePlayerByID(int playerID)
+	{
+		for(RemotePlayer ply : this.players)
+			if(ply.getPlayerID() == playerID)
+				return ply;
+		return null;
+	}
+
 	/**
 	 * Sur erreur du client, affiche la gui appropriée
 	 * @param e
@@ -318,5 +413,45 @@ public class TestClient {
 			this.port = port;
 			start();
 		}
+	}
+
+	/**
+	 * Renvoie l'ID du joueur joué par ce compte
+	 * @return
+	 */
+	public int getPlayerId() {
+		return this.playerID;
+	}
+	
+	/**
+	 * Renvoie la couleur du joueur
+	 * @return
+	 */
+	public Color getPlayerColor() {
+		return this.playerColor;
+	}
+
+	/**
+	 * Renvoie la liste des joueurs distants dans la partie
+	 * @return
+	 */
+	public CopyOnWriteArrayList<RemotePlayer> getPlayers() {
+		return this.players;
+	}
+
+	/**
+	 * Renvoie le nom de joueur
+	 * @return
+	 */
+	public String getPlayerName() {
+		return this.playerName;
+	}
+
+	/**
+	 * Renvoie la timestamp server
+	 * @return
+	 */
+	public long getServerTimestamp() {
+		return this.serverTimestamp;
 	}
 }

@@ -13,6 +13,9 @@ public class Packet {
 	public static final int ID_PACKET2ROUTE       = 2;
 	public static final int ID_PACKET3PLAYERJOIN  = 3;
 	public static final int ID_PACKET4PLAYERLEAVE = 4;
+	public static final int ID_PACKET5PLAYERINFO  = 5;
+	public static final int ID_PACKET6PROBEPING   = 6;
+	public static final int ID_PACKET7PROBEPONG   = 7;
 
 	/**
 	 * Structure du paquet :
@@ -159,6 +162,12 @@ public class Packet {
 				return Packet3PlayerJoin.fromRaw(rawData);
 			case ID_PACKET4PLAYERLEAVE:
 				return Packet4PlayerLeave.fromRaw(rawData);
+			case ID_PACKET5PLAYERINFO:
+				return Packet5PlayerInfo.fromRaw(rawData);
+			case ID_PACKET6PROBEPING:
+				return Packet6ProbePing.fromRaw(rawData);
+			case ID_PACKET7PROBEPONG:
+				return Packet7ProbePong.fromRaw(rawData);
 			default: return null;
 		}
 	}

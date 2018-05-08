@@ -4,14 +4,14 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class Packet4PlayerLeave extends Packet {
+public class Packet6ProbePing extends Packet {
 
-	public int playerID;
+	public long timestamp;
 	
-	public Packet4PlayerLeave(int id) {
+	public Packet6ProbePing(long timestamp) {
 		super();
 		
-		this.playerID = id;
+		this.timestamp = timestamp;
 		
 		this.init();
 	}
@@ -21,7 +21,7 @@ public class Packet4PlayerLeave extends Packet {
 	 */
 	public void init() {
 		try {
-			this.writeInt(this.playerID);
+			this.writeLong(this.timestamp);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -32,7 +32,7 @@ public class Packet4PlayerLeave extends Packet {
 	 */
 	@Override
 	public int getPacketID() {
-		return Packet.ID_PACKET4PLAYERLEAVE;
+		return Packet.ID_PACKET6PROBEPING;
 	}
 	
 	/**
@@ -44,11 +44,11 @@ public class Packet4PlayerLeave extends Packet {
 		try
 		{
 			DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
-			int playerID = dis.readInt();
+			long timestamp = dis.readLong();
 			dis.close();
 			
-			return new Packet4PlayerLeave(
-				playerID
+			return new Packet6ProbePing(
+				timestamp
 			);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -57,7 +57,7 @@ public class Packet4PlayerLeave extends Packet {
 	}
 	
 	public String toString() {
-		return "[Packet4PlayerLeave ***\n-> PlayerID="+this.playerID
+		return "[Packet6ProbePing ***\n-> timestamp="+this.timestamp
 			  +"\n*** ]";
 	}
 }
