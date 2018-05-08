@@ -4,9 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+
+import com.zergwar.common.Galaxy;
+import com.zergwar.common.Planet;
+import com.zergwar.common.Route;
 import com.zergwar.network.NetworkCode;
 import com.zergwar.network.packets.Packet;
 import com.zergwar.network.packets.Packet0Handshake;
+import com.zergwar.network.packets.Packet1Planet;
+import com.zergwar.network.packets.Packet2Route;
 import com.zergwar.notui.NotUI;
 import com.zergwar.util.log.Logger;
 import com.zergwar.util.math.ByteUtils;
@@ -17,9 +23,13 @@ public class TestClient {
 	private NetworkThread networkThread;
 	private Exception currentException;
 	private String status;
+	public Galaxy galaxy;
+	private ClientState state;
 	
 	public TestClient(String serverIP, int port) {
 		this.initNotUI();
+		this.state = ClientState.IDLE;
+		this.galaxy = new Galaxy();
 		this.networkThread = new NetworkThread(this);
 		this.networkThread.connect(serverIP, port);
 	}
@@ -46,6 +56,51 @@ public class TestClient {
 	 */
 	public void onPacketReceived(Packet packet) {
 		Logger.log("Incoming packet received by client : "+packet);
+		
+		switch(packet.getClass().getSimpleName()) {
+			case "Packet0Handshake":
+				if(this.state == ClientState.IDLE)
+				{
+					this.state = ClientState.SYNCING_PLANETS;
+					this.status = "[ Sync'ing game with remote server ]";
+					ui.repaint();
+				} else if(this.state == ClientState.SYNCING_PLANETS)
+				{
+					this.state = ClientState.SYNCING_ROUTES;
+				} else if(this.state == ClientState.SYNCING_ROUTES)
+				{
+					this.state = ClientState.SYNCED;
+					this.ui.setMenu(NotUI.MENU_ID_GAME);
+				}
+				break;
+			case "Packet1Planet":
+				if(this.state == ClientState.SYNCING_PLANETS) {
+					Packet1Planet pPacket = (Packet1Planet)packet;
+					this.status = "[ Receiving planet's '"+pPacket.name+"' data ]";
+					ui.repaint();
+					galaxy.planets.add(new Planet(
+						pPacket.name,
+						pPacket.coordX,
+						pPacket.coordY,
+						pPacket.diameter,
+						pPacket.ownerID,
+						pPacket.armyCount
+					));
+				}
+				break;
+			case "Packet2Route":
+				if(this.state == ClientState.SYNCING_ROUTES) {
+					Packet2Route rPacket = (Packet2Route)packet;
+					this.status = "[ Receiving route data ]";
+					ui.repaint();
+					galaxy.routes.add(new Route(
+						galaxy.getPlanetByName(rPacket.source),
+						galaxy.getPlanetByName(rPacket.destination)
+					));
+				}
+				break;
+			default: break;
+		}
 	}
 	
 	/**

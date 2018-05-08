@@ -1,5 +1,6 @@
 package com.zergwar.network;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 
@@ -12,6 +13,7 @@ public class NetworkClient extends Thread implements Runnable{
 	private NetworkAgent agent;
 	private Socket socket;
 	private boolean isRunning;
+	private NetworkClientState gameState;
 	private int state;
 	
 	public static final int ST_WAIT_HANDSHAKE = 1;
@@ -36,6 +38,14 @@ public class NetworkClient extends Thread implements Runnable{
 	public void start() {
 		this.isRunning = true;
 		super.start();
+	}
+	
+	/**
+	 * Définit le nouvel état de jeu du client
+	 * @param state
+	 */
+	public void setState(NetworkClientState state) {
+		this.gameState = state;
 	}
 
 	/**
@@ -152,5 +162,22 @@ public class NetworkClient extends Thread implements Runnable{
 	public void die(NetworkCode reason) {
 		this.isRunning = false;
 		this.agent.onClientDisconnected(this, reason);
+	}
+
+	/**
+	 * Sends a packet to the client
+	 * @param packet0Handshake
+	 */
+	public void sendPacket(Packet packet) {
+		if(this.socket != null)
+			if(this.socket.isConnected()) {
+				try {
+					packet.build();
+					this.socket.getOutputStream().write(packet.getData());
+				} catch (IOException e) {
+					Logger.log("Can't send packet : "+packet+", reason follows.");
+					e.printStackTrace();
+				}
+			}
 	}
 }

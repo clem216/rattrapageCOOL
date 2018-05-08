@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import javax.swing.JFrame;
+
+import com.zergwar.common.Planet;
 import com.zergwar.tests.TestClient;
 
 public class NotUI extends JFrame {
@@ -33,7 +35,9 @@ public class NotUI extends JFrame {
 	 * Initialise l'UI
 	 */
 	public void initUI() {
-		this.setSize(800, 600);
+		this.setSize(1000, 800);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setLocationRelativeTo(null);
 		this.setBackground(Color.black);
 		this.setVisible(true);
 	}
@@ -68,11 +72,39 @@ public class NotUI extends JFrame {
 				renderMenuConnecting(g);
 				break;
 			case MENU_ID_GAME:
+				renderMenuGame(g);
 				break;
 			default: break;
 		}
 	}
 	
+	/**
+	 * Dessine le plateau et le jeu
+	 * @param g
+	 */
+	private void renderMenuGame(Graphics2D g) {
+		drawCenteredString(g, Color.white, regular, "ZergWar | GameBoard | Synced", getWidth() / 2, 60);
+		g.setColor(Color.white);
+		g.drawRect(65, 100, 860, 500);
+		
+		for(Planet p : this.client.galaxy.planets) {
+			g.drawArc(
+				(int)(p.getX() + 75 - p.getDiameter() / 8),
+				(int)(p.getY() + 100 - p.getDiameter() / 8),
+				p.getDiameter() / 4,
+				p.getDiameter() / 4,
+				0,
+				360
+			);
+			
+			drawCenteredString(g, Color.WHITE, regular, p.getName(), (int)p.getX() + 75, (int)p.getY() + 100+ p.getDiameter() / 4 + 20);
+		}
+	}
+
+	/**
+	 * Dessine le menu d'erreur
+	 * @param g
+	 */
 	private void renderMenuError(Graphics2D g) {
 		drawCenteredString(g, Color.red, regular, "!! Une erreur est survenue !!", getWidth() / 2, getHeight() / 2 - 12);
 		drawCenteredString(g, Color.orange, regular, "Erreur : "+client.getCurrentException(), getWidth() / 2, getHeight() / 2 + 12);

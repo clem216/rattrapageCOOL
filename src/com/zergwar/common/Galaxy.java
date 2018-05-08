@@ -46,7 +46,9 @@ public class Galaxy {
 				planetStrT[0],
 				Float.valueOf(planetStrT[1]),
 				Float.valueOf(planetStrT[2]),
-				Integer.valueOf(planetStrT[3])
+				Integer.valueOf(planetStrT[3]),
+				-1,
+				0
 			);
 			
 			this.planets.add(planet);

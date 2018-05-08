@@ -4,5 +4,7 @@ public enum ClientState {
 
 	IDLE,
 	CONNECTING,
-	CONNECTED
+	SYNCING_PLANETS,
+	SYNCING_ROUTES,
+	SYNCED
 }

@@ -6,14 +6,17 @@ public class Planet {
 	private float coordX;
 	private float coordY;
 	private int diameter;
+	private int ownerID;
 	private Player owner;
 	private int armyCount;
 	
-	public Planet(String name, Float coordX, Float coordY, Integer diameter) {
+	public Planet(String name, Float coordX, Float coordY, Integer diameter, int ownerID, int armyCount) {
 		this.name = name;
 		this.coordX = coordX;
 		this.coordY = coordY;
 		this.diameter = diameter;
+		this.ownerID = ownerID;
+		this.armyCount = armyCount;
 	}
 
 	/**
@@ -54,6 +57,14 @@ public class Planet {
 	 */
 	public Player getOwner() {
 		return this.owner;
+	}
+	
+	/**
+	 * Renvoie l'ID du propriétaire de la planète
+	 * @return
+	 */
+	public int getOwnerID() {
+		return this.ownerID;
 	}
 
 	/**

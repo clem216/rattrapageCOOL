@@ -132,8 +132,6 @@ public class Packet {
 			ByteUtils.intToByteArray(getPacketID()),
 			result
 		);
-		
-		System.out.println(ByteUtils.bytesArrayToHexString(packetData));
 	}
 	
 	
