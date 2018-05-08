@@ -1,41 +1,139 @@
 package com.zergwar.network.packets;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.concurrent.CopyOnWriteArrayList;
-
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import com.zergwar.util.math.ByteUtils;
 
 public class Packet {
 
-	protected CopyOnWriteArrayList<PacketEntry> entries;
+	// constants
+	public static final int ID_PACKET0HANDSHAKE   = 0;
+	public static final int ID_PACKET1PLANET      = 1;
+	public static final int ID_PACKET2ROUTE       = 2;
+	public static final int ID_PACKET3PLAYERJOIN  = 3;
+	public static final int ID_PACKET4PLAYERLEAVE = 4;
+
+	/**
+	 * Structure du paquet :
+	 * [HEADER][PKLENGTH][[PKTYPE][DATA, DATA, DATA, ...]]
+	 *    12       4         4        n                 */
+	
+	// STATIC
 	public static String NET_PREFIX = "0651FF23DDEE"; // Random, header qui identifie notre appli
 	
-	/** CONSTRUCTEUR **/
+	// Dataholders
+	private ByteArrayOutputStream os; // Pas de temps réel , donc OK d'utiliser ça
+	private DataOutputStream dos;
+	private int packetID;
+	private byte[] packetData = new byte[0];
+	
 	public Packet() {
-		this.entries = new CopyOnWriteArrayList<PacketEntry>();
+		this.os = new ByteArrayOutputStream();
+		this.dos = new DataOutputStream(os);
+	}
+
+	/**
+	 * Ajoute un entier au packet
+	 * @param i
+	 * @throws IOException 
+	 */
+	public void writeInt(int i) throws IOException {
+		this.dos.writeInt(i);
 	}
 	
 	/**
-	 * Ajoute une donnée au paquet
-	 * @param obj
+	 * Ajoute un float au packet
+	 * @param f
+	 * @throws IOException 
 	 */
-	public void append(Object obj) {
-		if(this.entries != null)
-			this.entries.add(new PacketEntry(obj));
+	public void writeFloat(float f) throws IOException {
+		this.dos.writeFloat(f);
+	}
+	
+	/**
+	 * Ajoute un long au packet
+	 * @param l
+	 * @throws IOException 
+	 */
+	public void writeLong(long l) throws IOException {
+		this.dos.writeLong(l);
+	}
+	
+	/**
+	 * Ajoute un short au paquet
+	 * @param s
+	 * @throws IOException 
+	 */
+	public void writeShort(short s) throws IOException {
+		this.dos.writeShort(s);
+	}
+	
+	/**
+	 * Ajoute un boolean au paquet
+	 * @param b
+	 * @throws IOException 
+	 */
+	public void writeBoolean(boolean b) throws IOException {
+		this.dos.writeBoolean(b);
+	}
+	
+	/**
+	 * Ajoute une chaine UTF8 au paquet
+	 * @param str
+	 * @throws IOException
+	 */
+	public void writeString(String str) throws IOException {
+		this.dos.writeUTF(str);
+	}
+	
+	/**
+	 * Ecrit un byte unique dans le paquet
+	 * @param b
+	 * @throws IOException 
+	 */
+	public void writeByte(byte b) throws IOException {
+		this.dos.write(b);
+	}
+	
+	/**
+	 * Ecrit un nombre arbitraire de bytes dans le paquet
+	 * @param ba
+	 * @throws IOException
+	 */
+	public void writeBytes(byte[] ba) throws IOException {
+		this.dos.write(ba);
+	}
+	
+	/**
+	 * Renvoie l'ID de paquet
+	 * @return
+	 */
+	public int getPacketID() {
+		return this.packetID;
 	}
 	
 	/**
 	 * Renvoie le packet sous sa forme
 	 * transferrable (binaire)
 	 * @return
+	 * @throws IOException 
 	 */
-	public byte[] build() {
-		byte[] result = ByteUtils.hexStringToByteArray(NET_PREFIX);
-		for(PacketEntry entry : this.entries) {
-			result = ByteUtils.concatenate(result, entry.toBytes());
-		}
-		return result;
+	public void build() throws IOException
+	{	
+		dos.close();
+		os.close();
+		
+		byte[] result = os.toByteArray();
+
+		packetData = ByteUtils.concatenate(
+			ByteUtils.hexStringToByteArray(NET_PREFIX),
+			ByteUtils.intToByteArray(result.length),
+			ByteUtils.intToByteArray(getPacketID()),
+			result
+		);
+		
+		System.out.println(ByteUtils.bytesArrayToHexString(packetData));
 	}
 	
 	
@@ -45,120 +143,52 @@ public class Packet {
 	 * @param rawdata
 	 * @return
 	 */
-	public static Packet decode(byte[] rawData)
+	public static Packet decode(int packetID, byte[] rawData)
 	{	
-		// Check d'appartenance aux paquets de l'application
-		if(!ByteUtils.bytesArrayToHexString(rawData).startsWith(NET_PREFIX))
+		// Pas de data, on sort
+		if(rawData.length == 0)
 			return null;
 		
-		// Si il n'y a aucune data, skip
-		if(rawData.length<13) return null;
-		
-		// Si il y a de la data :
-		byte[] dataSet = Arrays.copyOfRange(rawData, 13, rawData.length);
-		int index = 0;
-		
-		Packet packet = new Packet();
-		boolean malformed = false;
-		
-		// itération sur le dataset
-		while(index < dataSet.length)
-		{	
-			switch(dataSet[index]) {
-			
-				/** Signed Integer **/
-				case 'i':
-					
-					if(dataSet.length-index > 3) {
-						packet.append(ByteUtils.byteArrayToInt(
-							Arrays.copyOfRange(rawData, index, index+4)
-						));
-					} else malformed = true;
-					index+=4;
-					break;
-					
-				/** UTF-8 String **/
-				case 'S':
-					
-					int strlen = 0;
-					
-					// lecture du nombre d'octets de la chaine
-					if(dataSet.length-index > 3) {
-						strlen = ByteUtils.byteArrayToInt(
-							Arrays.copyOfRange(rawData, index, index+4)
-						);
-						index+=4;
-					} else malformed = true;
-					
-					// lecture de la chaine
-					if(dataSet.length-index > strlen) {
-						String data = new String(
-							Arrays.copyOfRange(rawData, index, index+strlen),
-							StandardCharsets.UTF_8
-						);
-						packet.append(data);
-						index+=strlen;
-					} else malformed = true;
-					
-					break;
-				
-				/** Float **/
-				case 'f':
-					
-					if(dataSet.length - index > 3) {
-						float data = ByteUtils.byteArrayToFloat(
-							Arrays.copyOfRange(rawData, index, index+4)
-						);
-						packet.append(data);
-						index += 4;
-					}
-					
-					break;
-					
-				/** Boolean **/
-				case 'b':
-					
-					if(dataSet.length - index > 0) {
-						boolean b = dataSet[index]>0;
-						packet.append(b);
-						index++;
-					}
-					
-					break;
-					
-				// RIEN / ERREUR
-				default: index++;
-			}
+		// Reconstruction du paquet original
+		switch(packetID) {
+			case ID_PACKET0HANDSHAKE:
+				return Packet0Handshake.fromRaw(rawData);
+			case ID_PACKET1PLANET:
+				return Packet1Planet.fromRaw(rawData);
+			case ID_PACKET2ROUTE:
+				return Packet2Route.fromRaw(rawData);
+			case ID_PACKET3PLAYERJOIN:
+				return Packet3PlayerJoin.fromRaw(rawData);
+			case ID_PACKET4PLAYERLEAVE:
+				return Packet4PlayerLeave.fromRaw(rawData);
+			default: return null;
 		}
-		
-		// Si une erreur rencontrée, on jette le packet
-		if(malformed) return null;
-		
-		// Sinon, on renvoie le décodage
-		return packet;
-		
 	}
 	
 	/**
-	 * Liste les entrées du paquet
+	 * Reconstruit un paquet depuis une chaine
+	 * vide
+	 * @param data
 	 * @return
 	 */
-	public String listEntries() {
-		String result = "";
-		int count = 0;
-		
-		for(PacketEntry e : entries)
-			result += count+" -> "+e+"\n";
-		
-		return result;
+	public static Packet fromRaw(byte[] data) {
+		return null;
 	}
 
 	/**
 	 * Affichage de debug du packet
 	 */
 	public String toString() {
-		return "[PKT _____________ "+this.entries.size()
-			  +" entries]\n"+listEntries()
-			  +"______________PKT]";
+		return "[PKT, Datalen = "+os.size()+", PktID = "+this.getPacketID()+"\n"
+			  +"[RAW : " + ByteUtils.bytesArrayToHexString(packetData)+"\n"
+			  +"/PKT]";
+	}
+
+	/**
+	 * renvoie la donnée brute du paquet
+	 * @return
+	 */
+	public byte[] getData() {
+		return this.packetData;
 	}
 }

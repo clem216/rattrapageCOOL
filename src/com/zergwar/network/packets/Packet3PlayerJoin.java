@@ -2,9 +2,9 @@ package com.zergwar.network.packets;
 
 import java.io.IOException;
 
-public class Packet0Handshake extends Packet {
+public class Packet3PlayerJoin extends Packet {
 
-	public Packet0Handshake() {
+	public Packet3PlayerJoin() {
 		super();
 		this.init();
 	}
@@ -34,6 +34,6 @@ public class Packet0Handshake extends Packet {
 	 * @return
 	 */
 	public static Packet fromRaw(byte[] data) {
-		return new Packet0Handshake();
+		return new Packet3PlayerJoin();
 	}
 }

@@ -70,6 +70,6 @@ public class Launch {
 	 */
 	public void startTestClient() {
 		Logger.log("Démarrage d'un client de test !");
-		TestClient cli = new TestClient("127.0.0.1", 995);
+		new TestClient("127.0.0.1", 995);
 	}
 }

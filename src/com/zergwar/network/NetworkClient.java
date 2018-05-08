@@ -16,7 +16,8 @@ public class NetworkClient extends Thread implements Runnable{
 	
 	public static final int ST_WAIT_HANDSHAKE = 1;
 	public static final int ST_READ_DATALEN   = 2;
-	public static final int ST_READ_DATA      = 3;
+	public static final int ST_READ_PKTYPE    = 3;
+	public static final int ST_READ_DATA      = 4;
 	
 	/**
 	 * Instancie un thread de réception client
@@ -45,8 +46,9 @@ public class NetworkClient extends Thread implements Runnable{
 		int dataLenIndex = 0;
 		int dataLen = 0;
 		int dataIndex = 0;
+		int pkType = 0;
 		
-		byte[] buffer = new byte[12];
+		byte[] buffer = new byte[6];
 		byte[] dataLenBuffer = new byte[4];
 		byte[] data = new byte[0];
 		
@@ -64,31 +66,47 @@ public class NetworkClient extends Thread implements Runnable{
 					byte b = (byte)in.read();
 					bufferize(buffer, b);
 
-					Logger.log("client received : "+b);
-					
 					switch(state) {
 						case ST_WAIT_HANDSHAKE:
-							if(b == 0xEE && ByteUtils.bytesArrayToHexString(buffer).equals("0651FF23DDEE")) {
+							
+							if(b == (byte)0xEE && ByteUtils.bytesArrayToHexString(buffer).equals("0651FF23DDEE")) {
 								state = ST_READ_DATALEN;
 								dataLenIndex = 0;
 							}
+							
 							break;
 						case ST_READ_DATALEN:
 							dataLenBuffer[dataLenIndex++] = b;
+							
+							if(dataLenIndex > 3) {
+								state = ST_READ_PKTYPE;
+								dataLen = ByteUtils.byteArrayToInt(dataLenBuffer);
+								if(dataLen == 0) state = ST_WAIT_HANDSHAKE;
+								dataLenIndex = 0;
+							}
+							
+							break;
+						case ST_READ_PKTYPE:
+							dataLenBuffer[dataLenIndex++] = b;
+							
 							if(dataLenIndex > 3) {
 								state = ST_READ_DATA;
-								dataLen = ByteUtils.byteArrayToInt(dataLenBuffer);
+								pkType = ByteUtils.byteArrayToInt(dataLenBuffer);
 								dataIndex = 0;
 								data = new byte[dataLen];
 							}
+							
 							break;
 						case ST_READ_DATA:
-							if(dataIndex < dataLen) {
+							
+							if(dataIndex < dataLen)
 								data[dataIndex++] = b;
-							} else {
-								processRawIncomingPacket(data);
+							
+							if(dataIndex >= dataLen) {
+								processRawIncomingPacket(pkType, data);
 								state = ST_WAIT_HANDSHAKE;
 							}
+							
 							break;
 						default:
 							state = ST_WAIT_HANDSHAKE;
@@ -106,9 +124,9 @@ public class NetworkClient extends Thread implements Runnable{
 	 * Traite un paquet brut reçu
 	 * @param dataIndex
 	 */
-	private void processRawIncomingPacket(byte[] data)
+	private void processRawIncomingPacket(int packetID, byte[] data)
 	{
-		Packet packet = Packet.decode(data);
+		Packet packet = Packet.decode(packetID, data);
 		if(packet != null)
 			this.agent.onPacketReceived(this, packet);
 	}
@@ -125,7 +143,7 @@ public class NetworkClient extends Thread implements Runnable{
 			buffer[i-1] = buffer[i];
 		}
 		
-		buffer[11] = b;
+		buffer[5] = b;
 	}
 
 	/**

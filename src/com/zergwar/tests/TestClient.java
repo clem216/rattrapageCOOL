@@ -2,10 +2,9 @@ package com.zergwar.tests;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
-
+import com.zergwar.network.NetworkCode;
 import com.zergwar.network.packets.Packet;
 import com.zergwar.network.packets.Packet0Handshake;
 import com.zergwar.notui.NotUI;
@@ -76,6 +75,26 @@ public class TestClient {
 		this.ui.setMenu(NotUI.MENU_ID_CONNECTING);
 	}
 	
+	/**
+	 * Envoie un paquet au serveur
+	 * @param handshake
+	 */
+	public void send(Packet packet) {
+		try {
+			packet.build();
+			this.networkThread.sendRaw(packet.getData());
+		} catch (IOException e) {
+			Logger.log("Unable to send packet "+packet+", build failed !");
+			e.printStackTrace();
+		}
+	}
+
+	public void die(NetworkCode err) {
+		Logger.log("Client network thread crashed : "+err);
+		this.ui.setMenu(NotUI.MENU_ID_ERROR);
+	}
+
+	
 	/***********************************
 	 * NetworkThread Nested Class
 	 **********************************/
@@ -83,122 +102,152 @@ public class TestClient {
 		
 		private TestClient client;
 		private Socket socket;
-		private String ip;
-		private int port;
 		private boolean isRunning;
-		private int remainingData;
-		private byte[] buffer;
 		private int state;
 		
-		private static final int ST_WAIT_HEADER  = 1;
-		private static final int ST_READ_DATALEN = 2;
-		private static final int ST_READ_DATA    = 3;
+		private String ip;
+		private int port;
+		
+		public static final int ST_WAIT_HANDSHAKE = 1;
+		public static final int ST_READ_DATALEN   = 2;
+		public static final int ST_READ_PKTYPE    = 3;
+		public static final int ST_READ_DATA      = 4;
 		
 		public NetworkThread(TestClient client) {
 			this.client = client;
 		}
 		
-		public void run()
-		{	
-			Logger.log("Starting client networking thread...");
-			
-			try
-			{
-				this.socket = new Socket(InetAddress.getByName(ip), port);
-				
-				this.state = ST_WAIT_HEADER;
-				this.buffer = new byte[12];
+		/**
+		 * Send data to server
+		 * @param data
+		 */
+		public void sendRaw(byte[] data) {
+			if(socket != null)
+				if(socket.isConnected())
+					try {
+						socket.getOutputStream().write(data);
+					} catch (IOException e) {
+						Logger.log("Unable to send packet, i/o failure.");
+						e.printStackTrace();
+					}
+		}
 
-				client.onSocketConnected();
+		/**
+		 * Client async receive loop
+		 */
+		public void run()
+		{
+			int dataLenIndex = 0;
+			int dataLen = 0;
+			int dataIndex = 0;
+			int pkType = 0;
+			
+			byte[] buffer = new byte[6];
+			byte[] dataLenBuffer = new byte[4];
+			byte[] data = new byte[0];
+			
+			try {
+				socket = new Socket(ip, port);
 				
-				// Send a handshake
-				Packet handshake = new Packet0Handshake();
-				this.socket.getOutputStream().write(handshake.build());
+				InputStream in = socket.getInputStream();
+				OutputStream out = socket.getOutputStream();
 				
-				InputStream in = this.socket.getInputStream();
+				// avant d'écouter, lance un handshake
+				Packet0Handshake handshake = new Packet0Handshake();
+				handshake.build();
+				out.write(handshake.getData());
+				
+				// switche la vue à "connecting"
+				status = "[ Waiting for server handshake ]";
+				ui.setMenu(NotUI.MENU_ID_CONNECTING);
+				
+				// Lance la boucle d'écoute réseau
 				while(isRunning)
 				{
-					if(in.available() > 0)
-					{
-						int readlen = Math.min(in.available(), remainingData);
-						byte[] received = new byte[readlen];
-						in.read(received);
+					if(socket == null) die(NetworkCode.ERR_REGULAR_DISCONNECT);
+					if(socket.isClosed()) die(NetworkCode.ERR_REGULAR_DISCONNECT);
+					if(in == null) die(NetworkCode.ERR_REGULAR_DISCONNECT);
+					
+					if(in.available() > 0) {
 						
-						for(byte b : received)
-							processIncomingDataByte(b);
+						byte b = (byte)in.read();
+						bufferize(buffer, b);
+
+						switch(state) {
+							case ST_WAIT_HANDSHAKE:
+								
+								if(b == (byte)0xEE && ByteUtils.bytesArrayToHexString(buffer).equals("0651FF23DDEE")) {
+									state = ST_READ_DATALEN;
+									dataLenIndex = 0;
+								}
+								
+								break;
+							case ST_READ_DATALEN:
+								dataLenBuffer[dataLenIndex++] = b;
+								
+								if(dataLenIndex > 3) {
+									state = ST_READ_PKTYPE;
+									dataLen = ByteUtils.byteArrayToInt(dataLenBuffer);
+									if(dataLen == 0) state = ST_WAIT_HANDSHAKE;
+									dataLenIndex = 0;
+								}
+								
+								break;
+							case ST_READ_PKTYPE:
+								dataLenBuffer[dataLenIndex++] = b;
+								
+								if(dataLenIndex > 3) {
+									state = ST_READ_DATA;
+									pkType = ByteUtils.byteArrayToInt(dataLenBuffer);
+									dataIndex = 0;
+									data = new byte[dataLen];
+								}
+								
+								break;
+							case ST_READ_DATA:
+								
+								if(dataIndex < dataLen)
+									data[dataIndex++] = b;
+								
+								if(dataIndex >= dataLen) {
+									processRawIncomingPacket(pkType, data);
+									state = ST_WAIT_HANDSHAKE;
+								}
+								
+								break;
+							default:
+								state = ST_WAIT_HANDSHAKE;
+								break;
+						}
 					}
 				}
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-				client.onError(e);
-			} catch (IOException e) {
-				e.printStackTrace();
-				client.onError(e);
-			}
-			Logger.log("Client networking thread unexpectedly stopped working !");
-		}
-		
-		/**
-		 * Adds an incoming datachunk to the receiver
-		 * @param received
-		 */
-		int dataLenIndex;
-		int dataLen;
-		int dataIndex;
-		byte[] data;
-		byte[] dataLenBuffer;
-		
-		private void processIncomingDataByte(byte b)
-		{
-			bufferize(buffer, b);
-			
-			switch(this.state) {
-				case ST_WAIT_HEADER:
-					if(b == 0xEE)
-						if(ByteUtils.bytesArrayToHexString(buffer).equals("0651FF23DDEE")) {
-							this.state = ST_READ_DATALEN;
-							dataLenIndex = 0;
-						}
-					break;
-				case ST_READ_DATALEN:
-					dataLenBuffer[dataLenIndex++] = b;
-					if(dataLenIndex>3) {
-						dataLen = ByteUtils.byteArrayToInt(dataLenBuffer);
-						this.state = ST_READ_DATA;
-						this.data = new byte[dataLen];
-						dataIndex = 0;
-					}
-					break;
-				case ST_READ_DATA:
-					if(dataIndex < dataLen) {
-						data[dataIndex] = b;
-					} else {
-						processCompleteDataChunk(data);
-						this.state = ST_WAIT_HEADER;
-					}
-					break;
-				default: break;
+			} catch(Exception e) {
+				Logger.log("Client crashed : " + e);
+				die(NetworkCode.ERR_GENERIC);
 			}
 		}
 
 		/**
-		 * Ajoute au buffer circulaire de 12
-		 * @param buffer2
+		 * Put in circular 12 byte buffer
+		 * @param buffer
 		 * @param b
 		 */
-		private void bufferize(byte[] buffer, byte b) {
-			for(int i=1; i<buffer.length; i++) {
+		private void bufferize(byte[] buffer, byte b)
+		{
+			for(int i=1; i<buffer.length; i++)
+			{
 				buffer[i-1] = buffer[i];
 			}
-			buffer[11] = b;
+			
+			buffer[5] = b;
 		}
-
+		
 		/**
 		 * Processes a reconstructed datachunk
 		 */
-		private void processCompleteDataChunk(byte[] buffer)
+		private void processRawIncomingPacket(int packetID, byte[] data)
 		{
-			Packet packet = Packet.decode(buffer);
+			Packet packet = Packet.decode(packetID, data);
 			if(packet != null)
 				client.onPacketReceived(packet);
 		}
@@ -215,5 +264,4 @@ public class TestClient {
 			start();
 		}
 	}
-
 }

@@ -1,26 +1,22 @@
 package com.zergwar.tests;
 
+import java.io.IOException;
+
 import com.zergwar.network.packets.Packet;
-import com.zergwar.util.log.Logger;
+import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.util.math.ByteUtils;
 
 public class TestPackets {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		System.out.println("Construction du paquet\n");
-		Packet packet = new Packet();
-		packet.append("HELLO");
-		packet.append(-1);
-		packet.append(true);
-		packet.append(new byte[] {0x01, 0x02, (byte)0xFF});
+		
+		Packet packet = new Packet1Planet("TèstPlänet&",156.4f, -112.2f, 125, 2, 200);
+		packet.build();
 		System.out.println(packet.toString());
+		
 		System.out.println("\nEncodage !");
-		byte[] built = packet.build();
-		System.out.println(ByteUtils.bytesArrayToHexString(built));
-		System.out.println("\nDécodage !");
-		Packet decode = Packet.decode(built);
-		System.out.println("\nRésultant :");
-		System.out.println(decode);
+		System.out.println("Raw result : "+ByteUtils.bytesArrayToHexString(packet.getData()));
 	}
 
 }

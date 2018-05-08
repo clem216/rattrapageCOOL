@@ -7,13 +7,13 @@ public class Planet {
 	private float coordY;
 	private int diameter;
 	private Player owner;
+	private int armyCount;
 	
 	public Planet(String name, Float coordX, Float coordY, Integer diameter) {
 		this.name = name;
 		this.coordX = coordX;
 		this.coordY = coordY;
 		this.diameter = diameter;
-		this.owner = null;
 	}
 
 	/**
@@ -54,5 +54,13 @@ public class Planet {
 	 */
 	public Player getOwner() {
 		return this.owner;
+	}
+
+	/**
+	 * Renvoie le nombre d'armées présentes sur la planète
+	 * @return
+	 */
+	public int getArmyCount() {
+		return this.armyCount;
 	}
 }

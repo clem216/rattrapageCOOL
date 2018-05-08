@@ -22,12 +22,11 @@ public class ByteUtils {
 	 * @param bytes
 	 * @return
 	 */
-	public static int byteArrayToInt( byte[] bytes ) {
-	    int result = 0;
-	    for (int i=0; i<4; i++) {
-	      result = ( result << 8 ) - Byte.MIN_VALUE + (int) bytes[i];
-	    }
-	    return result;
+	public static int byteArrayToInt( byte[] b ) {
+		return (b[0] << 24)&0xff000000|
+			   (b[1] << 16)&0x00ff0000|
+			   (b[2] <<  8)&0x0000ff00|
+			   (b[3] <<  0)&0x000000ff;
 	  }
 	
 	/**
@@ -51,7 +50,7 @@ public class ByteUtils {
 	public static byte[] concatenate(byte[]... b) {
 		byte[] r = new byte[]{};
 		for(byte[] bt : b)
-			concatenate(r, bt);
+			r = concatenate(r, bt);
 		return r;
 	}
 	
