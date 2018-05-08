@@ -1,5 +1,5 @@
 package com.zergwar.common;
 
-public class Client {
+public class Player {
 
 }

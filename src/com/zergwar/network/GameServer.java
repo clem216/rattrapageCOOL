@@ -1,9 +1,7 @@
-package com.zergwar.common;
+package com.zergwar.network;
 
-import com.zergwar.network.NetworkAgent;
-import com.zergwar.network.NetworkCode;
-import com.zergwar.network.NetworkEventListener;
-import com.zergwar.network.NetworkPacket;
+import com.zergwar.common.Galaxy;
+import com.zergwar.network.packets.Packet;
 import com.zergwar.util.log.Logger;
 
 /**
@@ -11,16 +9,22 @@ import com.zergwar.util.log.Logger;
  */
 public class GameServer implements NetworkEventListener {
 
-	public NetworkAgent netAgent;
-	public Galaxy galaxy;
+	// constants
+	public static int SERVER_PORT = 995; // < 1024, w/firewall
+	
+	// Net agents
+	private NetworkAgent netAgent;
+	private Galaxy galaxy;
 	
 	public GameServer() {
-		this.netAgent = new NetworkAgent();
+		this.galaxy = new Galaxy();
+		this.netAgent = new NetworkAgent(SERVER_PORT);
 		this.netAgent.registerNetworkListener(this);
 	}
 
 	public void start() {
 		Logger.log("Starting gameserver...");
+		this.galaxy.initGalaxy();
 		this.netAgent.start();
 	}
 	
@@ -30,17 +34,17 @@ public class GameServer implements NetworkEventListener {
 	}
 
 	@Override
-	public void onClientConnected(Client client) {
+	public void onClientConnected(NetworkClient client) {
 		Logger.log(client+" connected !");
 	}
 
 	@Override
-	public void onClientDisconnected(Client client, NetworkCode reason) {
+	public void onClientDisconnected(NetworkClient client, NetworkCode reason) {
 		Logger.log(client+" disconnected !");
 	}
 
 	@Override
-	public void onClientPacketReceived(Client client, NetworkPacket packet) {
+	public void onClientPacketReceived(NetworkClient client, Packet packet) {
 		Logger.log(client+" sent packet "+packet);
 	}
 

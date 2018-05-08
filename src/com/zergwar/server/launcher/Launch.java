@@ -1,6 +1,9 @@
 package com.zergwar.server.launcher;
 
-import com.zergwar.common.GameServer;
+import javax.swing.JOptionPane;
+
+import com.zergwar.network.GameServer;
+import com.zergwar.tests.TestClient;
 import com.zergwar.util.log.Logger;
 
 /**
@@ -25,8 +28,32 @@ public class Launch {
 	 */
 	public Launch(String[] arguments) {
 		this.launchArguments = arguments;
-		this.startServer();
-		this.startTestClient();
+		
+		Object[] options = {"Lancer le client",
+		                    "Lancer le serveur",
+		                    "Fermer"};
+		
+		int result = JOptionPane.showOptionDialog(null,
+		    "Souhaitez-vous démarrer le serveur ZergWar, ou un client de test ?",
+		    "Choix du mode de lancement",
+		    JOptionPane.YES_NO_CANCEL_OPTION,
+		    JOptionPane.QUESTION_MESSAGE,
+		    null,
+		    options,
+		    options[2]);
+		
+		switch(result) {
+			case 0:
+				this.startTestClient();
+				break;
+			case 1:
+				this.startServer();
+				break;
+			default:
+				System.exit(0);
+				break;
+		}
+		
 	}
 	
 	/**
@@ -43,5 +70,6 @@ public class Launch {
 	 */
 	public void startTestClient() {
 		Logger.log("Démarrage d'un client de test !");
+		TestClient cli = new TestClient("127.0.0.1", 995);
 	}
 }

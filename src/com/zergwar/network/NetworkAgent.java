@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.zergwar.network.packets.Packet;
 import com.zergwar.util.log.Logger;
 
 /**
@@ -17,8 +18,11 @@ import com.zergwar.util.log.Logger;
  * 
  * Tramage :
  * ---------
- * [0651ff23ddee][ENTRY_01][ENTRY_02][ENTRY_03]...[ENTRY_N]
- *  -  en-tete -
+ * [0651ff23ddee][DataLength][ENTRY_01][ENTRY_02][ENTRY_03]...[ENTRY_N]
+ *  -  en-tete - int 32bits - 
+ *  
+ *  Data Length est un entier de 32 bits qui contient la taille de tout
+ *  ce qui va suivre !
  *  
  *  Détail des en-têtes :
  *  ---------------------
@@ -33,19 +37,18 @@ import com.zergwar.util.log.Logger;
  */
 
 public class NetworkAgent {
-
-	// constants
-	public static int SERVER_PORT = 995; // < 1024, w/firewall
 	
 	// Privates
 	private CopyOnWriteArrayList<NetworkEventListener> listeners;
-	private CopyOnWriteArrayList<NetworkLink> links;
+	private CopyOnWriteArrayList<NetworkClient> clients;
 	private NetworkAgentExecutor agent;
+	private int serverPort;
 	
 	/** CONSTRUCTEUR **/
-	public NetworkAgent() {
+	public NetworkAgent(int port) {
+		this.serverPort = port;
 		this.listeners = new CopyOnWriteArrayList<NetworkEventListener>();
-		this.links = new CopyOnWriteArrayList<NetworkLink>();
+		this.clients = new CopyOnWriteArrayList<NetworkClient>();
 		this.agent = new NetworkAgentExecutor(this);
 	}
 	
@@ -131,7 +134,7 @@ public class NetworkAgent {
 		{
 			try
 			{
-				ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+				ServerSocket serverSocket = new ServerSocket(serverPort);
 				
 				while(running) {
 					Socket socket = serverSocket.accept();
@@ -152,13 +155,13 @@ public class NetworkAgent {
 		 * @param socket
 		 */
 		private void onInboundConnection(Socket socket) {
-			if(links != null)
+			if(clients != null)
 			{
-				NetworkLink link = new NetworkLink(agent, socket);
-				Logger.log("Creation du Link avec le client entrant via socket @"+socket);
-				links.add(link);
+				NetworkClient client = new NetworkClient(agent, socket);
+				Logger.log("Inbound connection from @"+socket);
+				clients.add(client);
 			} else
-				Logger.log("Links unitialized. This is impossible, but just happened. Too bad.");
+				Logger.log("Unable to connect");
 		}
 
 		@Override
@@ -167,5 +170,25 @@ public class NetworkAgent {
 			this.running = true;
 			super.start();
 		}
+	}
+
+	/**
+	 * Un client a cessé de fonctionner
+	 * @param networkClient
+	 */
+	public void onClientDisconnected(NetworkClient networkClient, NetworkCode reason) {
+		for(NetworkEventListener listener : this.listeners)
+			listener.onClientDisconnected(networkClient, reason);
+		this.clients.remove(networkClient);
+	}
+
+	/**
+	 * Un client a envoyé un paquet
+	 * @param networkClient
+	 * @param packet
+	 */
+	public void onPacketReceived(NetworkClient networkClient, Packet packet) {
+		for(NetworkEventListener listener : this.listeners)
+			listener.onClientPacketReceived(networkClient, packet);
 	}
 }
