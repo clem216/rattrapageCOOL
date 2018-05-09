@@ -9,11 +9,15 @@ import com.zergwar.common.Planet;
 import com.zergwar.common.Route;
 import com.zergwar.network.packets.Packet;
 import com.zergwar.network.packets.Packet0Handshake;
+import com.zergwar.network.packets.Packet10PlanetaryUpdate;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
 import com.zergwar.network.packets.Packet3PlayerJoin;
 import com.zergwar.network.packets.Packet5PlayerInfo;
 import com.zergwar.network.packets.Packet6ProbePing;
+import com.zergwar.network.packets.Packet8ReadyNotReady;
+import com.zergwar.network.packets.Packet9GameStart;
+import com.zergwar.util.config.Configuration;
 import com.zergwar.util.log.Logger;
 
 /**
@@ -22,8 +26,9 @@ import com.zergwar.util.log.Logger;
 public class GameServer implements NetworkEventListener {
 
 	// constants
-	public static int SERVER_PORT = 995; // < 1024, w/firewall
-	public static int MAX_CLIENTS = 8;   // limiter a 2 dans l'exemple
+	public static int SERVER_PORT = 65530;     // < 1024, w/firewall ou > 1024 avec
+	public static int MAX_CLIENTS = 8;         // limiter a 2 dans l'exemple
+	public static int INACTIVITY_DELAY = 1000; // ms
 	public static int currentPlayerID;
 	
 	public static final int ST_GAME_LOBBY   = 0;
@@ -95,7 +100,7 @@ public class GameServer implements NetworkEventListener {
 					// Cleane les clients n'ayant pas donné signe de vie
 					// depuis plus de 400ms
 					for(NetworkClient cli : netAgent.getClients()) {
-						if(cli.getInactivity() > 400) {
+						if(cli.getInactivity() > INACTIVITY_DELAY) {
 							Logger.log("Disconnecting client "+cli+" for inactivity");
 							netAgent.onClientDisconnected(cli, NetworkCode.ERR_REGULAR_DISCONNECT);
 						}
@@ -103,7 +108,9 @@ public class GameServer implements NetworkEventListener {
 					
 					try {
 						Thread.sleep(1000);
-					} catch (InterruptedException e) {e.printStackTrace();}
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		};
@@ -214,6 +221,9 @@ public class GameServer implements NetworkEventListener {
 			client.getPlayerId(),
 			client.getColor().getRGB()
 		));
+		
+		// ACK
+		client.sendPacket(new Packet0Handshake());
 				
 		// Synchro des joueurs
 		Logger.log("Syncing other player references...");
@@ -222,8 +232,9 @@ public class GameServer implements NetworkEventListener {
 		{
 			Packet3PlayerJoin jPacket = new Packet3PlayerJoin(
 				cli.getPlayerName(),
-					cli.getPlayerId(),
-				cli.getColor().getRGB()
+				cli.getPlayerId(),
+				cli.getColor().getRGB(),
+				cli.getReady()
 			);
 			
 			try {
@@ -240,7 +251,8 @@ public class GameServer implements NetworkEventListener {
 			new Packet3PlayerJoin(
 				client.getPlayerName(),
 				client.getPlayerId(),
-				client.getColor().getRGB()
+				client.getColor().getRGB(),
+				client.getReady()
 			),
 			client
 		);
@@ -261,10 +273,91 @@ public class GameServer implements NetworkEventListener {
 		switch(packet.getClass().getSimpleName())
 		{
 			case "Packet0Handshake":
-				this.onClientConnected(client);
+				onClientConnected(client);
+				break;
+			case "Packet8ReadyNotReady":
+				Packet8ReadyNotReady rPacket = (Packet8ReadyNotReady)packet;
+				onReadyStatusChanged(client, rPacket.readyState);
 				break;
 			default: break;
 		}
+	}
+
+	/**
+	 * Lorsqu'un client a changé de statut
+	 * @param client
+	 */
+	private void onReadyStatusChanged(NetworkClient client, boolean readyState)
+	{
+		Logger.log("Client "+client+" readyness changed");
+		client.setReady(readyState);
+		this.netAgent.broadcast(
+			new Packet8ReadyNotReady(client.getPlayerId(), client.getReady()),
+			null
+		);
+		
+		// Vérifie si tous les clients sont prets (>2)
+		if(checkAllClientsReady()) {
+			onGameReady();
+		}
+	}
+
+	/**
+	 * la partie est prête à démarrer
+	 */
+	private void onGameReady()
+	{
+		// Notifie les clients du début de la partie
+		this.netAgent.broadcast(new Packet9GameStart(), null);
+		
+		// Attend 3 secondes avant d'envoyer les positions
+		// de départ
+		
+		new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				initializeGameboard();
+			}
+		}, 3000L);
+	}
+
+	/**
+	 * Initialise la partie
+	 */
+	private void initializeGameboard()
+	{
+		for(NetworkClient client : this.netAgent.getClients())
+		{
+			Planet p = galaxy.getRandomEmptyPlanet();
+			p.setOwner(client.getPlayerId());
+			p.setArmyCount(Configuration.NB_ZERG_DEPART);
+			
+			/**
+			 * Log du choix effectué
+			 */
+			Logger.log("La planète de départ du joueur "+client+" sera "+p);
+			
+			/* Envoie la mise à jour de la planète de départ
+			 * à tous les joueurs de la partie   		 */
+			this.netAgent.broadcast(new Packet10PlanetaryUpdate(
+				p.getName(),
+				p.getOwnerID(),
+				p.getArmyCount()
+			), null);
+		}
+	}
+
+	/**
+	 * Vérifie si tous les clients sont prêts
+	 * @return 
+	 */
+	private boolean checkAllClientsReady()
+	{
+		int rdyCount = 0;
+		for(NetworkClient client : this.netAgent.getClients())
+			if(client.getReady())
+				rdyCount++;
+		return (rdyCount>1) && rdyCount == this.netAgent.getClients().size();
 	}
 
 	/**

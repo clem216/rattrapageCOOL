@@ -13,8 +13,8 @@ import com.zergwar.util.log.Logger;
  * 
  * Protocole réseau :
  * ------------------
- * Applicable sur couche TCP et UDP, pas de reordering intégré.
- * Sans acquittement
+ * Applicable sur couche TCP, sur UDP pas de reordering intégré.
+ * Sans acquittement systématique
  * 
  * Tramage :
  * ---------

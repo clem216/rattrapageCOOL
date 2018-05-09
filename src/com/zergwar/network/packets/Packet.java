@@ -8,19 +8,22 @@ import com.zergwar.util.math.ByteUtils;
 public class Packet {
 
 	// constants
-	public static final int ID_PACKET0HANDSHAKE   = 0;
-	public static final int ID_PACKET1PLANET      = 1;
-	public static final int ID_PACKET2ROUTE       = 2;
-	public static final int ID_PACKET3PLAYERJOIN  = 3;
-	public static final int ID_PACKET4PLAYERLEAVE = 4;
-	public static final int ID_PACKET5PLAYERINFO  = 5;
-	public static final int ID_PACKET6PROBEPING   = 6;
-	public static final int ID_PACKET7PROBEPONG   = 7;
+	public static final int ID_PACKET0HANDSHAKE        = 0;
+	public static final int ID_PACKET1PLANET           = 1;
+	public static final int ID_PACKET2ROUTE            = 2;
+	public static final int ID_PACKET3PLAYERJOIN       = 3;
+	public static final int ID_PACKET4PLAYERLEAVE      = 4;
+	public static final int ID_PACKET5PLAYERINFO       = 5;
+	public static final int ID_PACKET6PROBEPING        = 6;
+	public static final int ID_PACKET7PROBEPONG        = 7;
+	public static final int ID_PACKET8READYNOTREADY    = 8;
+	public static final int ID_PACKET9GAMESTART        = 9;
+	public static final int ID_PACKET10PLANETARYUPDATE = 10;
 
 	/**
 	 * Structure du paquet :
 	 * [HEADER][PKLENGTH][[PKTYPE][DATA, DATA, DATA, ...]]
-	 *    12       4         4        n                 */
+	 *    12       4          4             n           */
 	
 	// STATIC
 	public static String NET_PREFIX = "0651FF23DDEE"; // Random, header qui identifie notre appli
@@ -168,6 +171,12 @@ public class Packet {
 				return Packet6ProbePing.fromRaw(rawData);
 			case ID_PACKET7PROBEPONG:
 				return Packet7ProbePong.fromRaw(rawData);
+			case ID_PACKET8READYNOTREADY:
+				return Packet8ReadyNotReady.fromRaw(rawData);
+			case ID_PACKET9GAMESTART:
+				return Packet9GameStart.fromRaw(rawData);
+			case ID_PACKET10PLANETARYUPDATE:
+				return Packet10PlanetaryUpdate.fromRaw(rawData);
 			default: return null;
 		}
 	}

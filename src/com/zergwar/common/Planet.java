@@ -65,4 +65,28 @@ public class Planet {
 	public int getArmyCount() {
 		return this.armyCount;
 	}
+
+	/**
+	 * Renvoie si la planète est inoccupée
+	 * @return
+	 */
+	public boolean isEmpty() {
+		return this.armyCount == 0;
+	}
+
+	/**
+	 * Définit le propriétaire de la partie
+	 * @param playerId
+	 */
+	public void setOwner(int playerId) {
+		this.ownerID = playerId;
+	}
+
+	/**
+	 * Définit le nombre d'armées sur une planète
+	 * @param armies
+	 */
+	public void setArmyCount(int armies) {
+		this.armyCount = armies;
+	}
 }

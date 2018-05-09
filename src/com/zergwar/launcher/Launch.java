@@ -70,6 +70,6 @@ public class Launch {
 	 */
 	public void startTestClient() {
 		Logger.log("Démarrage d'un client de test !");
-		new GameClient("127.0.0.1", 995);
+		new GameClient("127.0.0.1", 65530);
 	}
 }

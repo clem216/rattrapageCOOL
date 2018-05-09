@@ -28,16 +28,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </enumeration>  
-  <class id="4" language="java" name="com.zergwar.server.launcher.Launch" project="ZergWar" 
-    file="/ZergWar/src/com/zergwar/server/launcher/Launch.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="153" width="151" x="875" y="37"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="5" language="java" name="com.zergwar.network.packets.Packet7ProbePong" project="ZergWar" 
+  <class id="4" language="java" name="com.zergwar.network.packets.Packet7ProbePong" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/network/packets/Packet7ProbePong.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="135" width="141" x="1516" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -46,7 +37,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="com.zergwar.client.GameClient.NetworkThread" project="ZergWar" 
+  <class id="5" language="java" name="com.zergwar.client.GameClient.NetworkThread" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/client/GameClient.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="333" width="235" x="2912" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -55,7 +46,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="7" language="java" name="com.zergwar.network.packets.Packet" project="ZergWar" 
+  <class id="6" language="java" name="com.zergwar.network.packets.Packet" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/network/packets/Packet.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="567" width="176" x="1516" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -64,7 +55,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="8" language="java" name="com.zergwar.server.NetworkAgent.NetworkAgentExecutor" project="ZergWar" 
+  <class id="7" language="java" name="com.zergwar.server.NetworkAgent.NetworkAgentExecutor" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/server/NetworkAgent.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="189" width="217" x="2336" y="1287"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -73,7 +64,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <enumeration id="9" language="java" name="com.zergwar.server.NetworkCode" project="ZergWar" 
+  <enumeration id="8" language="java" name="com.zergwar.server.NetworkCode" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/server/NetworkCode.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="135" width="242" x="593" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -82,7 +73,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </enumeration>  
-  <class id="10" language="java" name="com.zergwar.network.packets.Packet6ProbePing" project="ZergWar" 
+  <class id="9" language="java" name="com.zergwar.network.packets.Packet6ProbePing" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/network/packets/Packet6ProbePing.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="171" width="141" x="1335" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -91,7 +82,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="11" language="java" name="com.zergwar.server.GameServer" project="ZergWar" 
+  <class id="10" language="java" name="com.zergwar.server.GameServer" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/server/GameServer.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="495" width="297" x="2688" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -100,7 +91,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="12" language="java" name="com.zergwar.server.NetworkClient" project="ZergWar" 
+  <class id="11" language="java" name="com.zergwar.server.NetworkClient" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/server/NetworkClient.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="549" width="235" x="2061" y="1287"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -109,7 +100,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="13" language="java" name="com.zergwar.network.packets.Packet1Planet" project="ZergWar" 
+  <class id="12" language="java" name="com.zergwar.network.packets.Packet1Planet" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/network/packets/Packet1Planet.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="261" width="219" x="1878" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -118,7 +109,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="14" language="java" name="com.zergwar.client.GameClient" project="ZergWar" 
+  <class id="13" language="java" name="com.zergwar.client.GameClient" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/client/GameClient.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="495" width="275" x="3153" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -127,7 +118,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="15" language="java" name="com.zergwar.network.packets.Packet0Handshake" project="ZergWar" 
+  <class id="14" language="java" name="com.zergwar.network.packets.Packet0Handshake" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/network/packets/Packet0Handshake.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="135" width="141" x="1697" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -136,7 +127,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="16" language="java" name="com.zergwar.network.packets.Packet5PlayerInfo" project="ZergWar" 
+  <class id="15" language="java" name="com.zergwar.network.packets.Packet5PlayerInfo" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/network/packets/Packet5PlayerInfo.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="207" width="176" x="1119" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -145,7 +136,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="17" language="java" name="com.zergwar.notui.NotUIUtils" project="ZergWar" 
+  <class id="16" language="java" name="com.zergwar.notui.NotUIUtils" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/notui/NotUIUtils.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="117" width="146" x="407" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -154,7 +145,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="18" language="java" name="com.zergwar.network.packets.Packet3PlayerJoin" project="ZergWar" 
+  <class id="17" language="java" name="com.zergwar.network.packets.Packet3PlayerJoin" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/network/packets/Packet3PlayerJoin.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="207" width="177" x="902" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -163,7 +154,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="19" language="java" name="com.zergwar.server.NetworkAgent" project="ZergWar" 
+  <class id="18" language="java" name="com.zergwar.server.NetworkAgent" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/server/NetworkAgent.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="261" width="297" x="2336" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -172,7 +163,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="20" language="java" name="com.zergwar.network.packets.Packet4PlayerLeave" project="ZergWar" 
+  <class id="19" language="java" name="com.zergwar.network.packets.Packet4PlayerLeave" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/network/packets/Packet4PlayerLeave.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="171" width="143" x="719" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -181,7 +172,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <interface id="21" language="java" name="com.zergwar.server.NetworkEventListener" project="ZergWar" 
+  <interface id="20" language="java" name="com.zergwar.server.NetworkEventListener" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/server/NetworkEventListener.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="135" width="297" x="2872" y="1287"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -190,16 +181,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </interface>  
-  <class id="22" language="java" name="com.zergwar.tests.TestPackets" project="ZergWar" 
-    file="/ZergWar/src/com/zergwar/tests/TestPackets.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="99" width="113" x="254" y="37"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="23" language="java" name="com.zergwar.common.Player" project="ZergWar" 
+  <class id="21" language="java" name="com.zergwar.common.Player" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/common/Player.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="207" width="120" x="2665" y="2249"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -208,7 +190,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="24" language="java" name="com.zergwar.notui.NotUI" project="ZergWar" 
+  <class id="22" language="java" name="com.zergwar.notui.NotUI" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/notui/NotUI.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="603" width="446" x="3619" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -217,7 +199,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="25" language="java" name="com.zergwar.common.Galaxy" project="ZergWar" 
+  <class id="23" language="java" name="com.zergwar.common.Galaxy" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/common/Galaxy.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="153" width="178" x="2673" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -226,7 +208,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="26" language="java" name="com.zergwar.util.config.Configuration" project="ZergWar" 
+  <class id="24" language="java" name="com.zergwar.util.config.Configuration" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/util/config/Configuration.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="225" width="165" x="1066" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -235,7 +217,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="27" language="java" name="com.zergwar.util.math.ByteUtils" project="ZergWar" 
+  <class id="25" language="java" name="com.zergwar.util.math.ByteUtils" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/util/math/ByteUtils.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="243" width="205" x="1271" y="37"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -244,7 +226,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="28" language="java" name="com.zergwar.network.packets.Packet2Route" project="ZergWar" 
+  <class id="26" language="java" name="com.zergwar.network.packets.Packet2Route" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/network/packets/Packet2Route.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="189" width="159" x="2137" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -253,7 +235,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="29" language="java" name="com.zergwar.client.RemotePlayer" project="ZergWar" 
+  <class id="27" language="java" name="com.zergwar.client.RemotePlayer" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/client/RemotePlayer.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="189" width="170" x="3187" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -262,7 +244,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="30" language="java" name="com.zergwar.common.Planet" project="ZergWar" 
+  <class id="28" language="java" name="com.zergwar.common.Planet" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/common/Planet.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="333" width="206" x="2665" y="1876"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -271,7 +253,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <enumeration id="31" language="java" name="com.zergwar.client.ClientState" project="ZergWar" 
+  <enumeration id="29" language="java" name="com.zergwar.client.ClientState" project="ZergWar" 
     file="/ZergWar/src/com/zergwar/client/ClientState.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="171" width="182" x="3397" y="644"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -280,292 +262,280 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </enumeration>  
-  <realization id="32">    
-    <bendpoint x="2881" y="644"/>    
-    <end type="SOURCE" refId="11"/>    
-    <end type="TARGET" refId="21"/>  
-  </realization>  
+  <association id="30">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="31" name="source">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="32" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="28" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
   <association id="33">    
-    <end type="SOURCE" refId="11" navigable="false">      
-      <attribute id="34" name="netAgent">        
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="34" name="galaxy">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
       <multiplicity id="35" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="19" navigable="true"/>    
+    <end type="TARGET" refId="23" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="36">    
-    <end type="SOURCE" refId="10"/>    
-    <end type="TARGET" refId="7"/>  
-  </generalization>  
-  <association id="37">    
-    <end type="SOURCE" refId="11" navigable="false">      
-      <attribute id="38" name="galaxy">        
+  <association id="36">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="37" name="players">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="39" minimum="0" maximum="1">        
+      <multiplicity id="38" minimum="0" maximum="2147483647">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="25" navigable="true"/>    
+    <end type="TARGET" refId="27" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="40">    
-    <end type="SOURCE" refId="16"/>    
+  <nesting id="39">    
+    <end type="SOURCE" refId="18"/>    
     <end type="TARGET" refId="7"/>  
-  </generalization>  
+  </nesting>  
+  <realization id="40">    
+    <bendpoint x="2881" y="644"/>    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="20"/>  
+  </realization>  
   <association id="41">    
-    <end type="SOURCE" refId="12" navigable="false">      
-      <attribute id="42" name="gameState">        
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="42" name="client">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
       <multiplicity id="43" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="3" navigable="true"/>    
+    <end type="TARGET" refId="13" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <association id="44">    
-    <end type="SOURCE" refId="19" navigable="false">      
-      <attribute id="45" name="clients">        
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="45" name="agent">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="46" minimum="0" maximum="2147483647">        
+      <multiplicity id="46" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="12" navigable="true"/>    
+    <end type="TARGET" refId="18" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <association id="47">    
-    <end type="SOURCE" refId="19" navigable="false">      
-      <attribute id="48" name="listeners">        
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="48" name="netAgent">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="49" minimum="0" maximum="2147483647">        
+      <multiplicity id="49" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="21" navigable="true"/>    
+    <end type="TARGET" refId="18" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <association id="50">    
-    <end type="SOURCE" refId="25" navigable="false">      
-      <attribute id="51" name="routes">        
+    <bendpoint x="2746" y="1287"/>    
+    <end type="SOURCE" refId="23" navigable="false">      
+      <attribute id="51" name="planets">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
       <multiplicity id="52" minimum="0" maximum="2147483647">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="1" navigable="true"/>    
+    <end type="TARGET" refId="28" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="53">    
-    <end type="SOURCE" refId="1" navigable="false">      
-      <attribute id="54" name="dest">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="55" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="30" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="56">    
-    <end type="SOURCE" refId="13"/>    
-    <end type="TARGET" refId="7"/>  
-  </generalization>  
-  <nesting id="57">    
-    <end type="SOURCE" refId="14"/>    
+  <generalization id="53">    
+    <end type="SOURCE" refId="26"/>    
     <end type="TARGET" refId="6"/>  
-  </nesting>  
-  <association id="58">    
-    <end type="SOURCE" refId="14" navigable="false">      
-      <attribute id="59" name="players">        
+  </generalization>  
+  <association id="54">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="55" name="state">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="60" minimum="0" maximum="2147483647">        
+      <multiplicity id="56" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="29" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="61">    
-    <end type="SOURCE" refId="8" navigable="false">      
-      <attribute id="62" name="agent">        
+  <generalization id="57">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="6"/>  
+  </generalization>  
+  <association id="58">    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="59" name="agent">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="63" minimum="0" maximum="1">        
+      <multiplicity id="60" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="19" navigable="true"/>    
+    <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="64">    
-    <end type="SOURCE" refId="20"/>    
-    <end type="TARGET" refId="7"/>  
+  <generalization id="61">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="6"/>  
   </generalization>  
-  <association id="65">    
-    <end type="SOURCE" refId="30" navigable="false">      
-      <attribute id="66" name="owner">        
+  <generalization id="62">    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="6"/>  
+  </generalization>  
+  <association id="63">    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="64" name="clients">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="67" minimum="0" maximum="1">        
+      <multiplicity id="65" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="66">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="6"/>  
+  </generalization>  
+  <generalization id="67">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="6"/>  
+  </generalization>  
+  <nesting id="68">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="5"/>  
+  </nesting>  
+  <association id="69">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="70" name="networkThread">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="71" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="72">    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="73" name="listeners">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="74" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="20" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="75">    
+    <end type="SOURCE" refId="22" navigable="false">      
+      <attribute id="76" name="client">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="77" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="78">    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="6"/>  
+  </generalization>  
+  <association id="79">    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="80" name="gameState">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="81" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="82">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="83" name="dest">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="84" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="28" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="85">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="86" name="agent">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="87" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="88">    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="89" name="galaxy">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="90" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="23" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="68">    
-    <bendpoint x="2746" y="1287"/>    
-    <end type="SOURCE" refId="25" navigable="false">      
-      <attribute id="69" name="planets">        
+  <association id="91">    
+    <end type="SOURCE" refId="23" navigable="false">      
+      <attribute id="92" name="routes">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="70" minimum="0" maximum="2147483647">        
+      <multiplicity id="93" minimum="0" maximum="2147483647">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="30" navigable="true"/>    
+    <end type="TARGET" refId="1" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="71">    
-    <end type="SOURCE" refId="14" navigable="false">      
-      <attribute id="72" name="state">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="73" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="31" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="74">    
-    <end type="SOURCE" refId="1" navigable="false">      
-      <attribute id="75" name="source">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="76" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="30" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="77">    
-    <end type="SOURCE" refId="19" navigable="false">      
-      <attribute id="78" name="agent">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="79" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="8" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="80">    
-    <end type="SOURCE" refId="5"/>    
-    <end type="TARGET" refId="7"/>  
+  <generalization id="94">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="6"/>  
   </generalization>  
-  <association id="81">    
-    <end type="SOURCE" refId="6" navigable="false">      
-      <attribute id="82" name="client">        
+  <association id="95">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="96" name="ui">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="83" minimum="0" maximum="1">        
+      <multiplicity id="97" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="14" navigable="true"/>    
+    <end type="TARGET" refId="22" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="84">    
-    <end type="SOURCE" refId="28"/>    
-    <end type="TARGET" refId="7"/>  
-  </generalization>  
-  <generalization id="85">    
-    <end type="SOURCE" refId="15"/>    
-    <end type="TARGET" refId="7"/>  
-  </generalization>  
-  <nesting id="86">    
-    <end type="SOURCE" refId="19"/>    
-    <end type="TARGET" refId="8"/>  
-  </nesting>  
-  <association id="87">    
-    <end type="SOURCE" refId="24" navigable="false">      
-      <attribute id="88" name="client">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="89" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="14" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="90">    
-    <end type="SOURCE" refId="12" navigable="false">      
-      <attribute id="91" name="agent">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="92" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="19" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="93">    
-    <end type="SOURCE" refId="14" navigable="false">      
-      <attribute id="94" name="ui">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="95" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="24" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="96">    
-    <end type="SOURCE" refId="14" navigable="false">      
-      <attribute id="97" name="galaxy">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="98" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="25" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="99">    
-    <end type="SOURCE" refId="14" navigable="false">      
-      <attribute id="100" name="networkThread">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="101" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="6" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="102">    
-    <end type="SOURCE" refId="18"/>    
-    <end type="TARGET" refId="7"/>  
-  </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="true" package="true" protected="true" private="true" static="true"/>    

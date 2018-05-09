@@ -14,6 +14,7 @@ import com.zergwar.common.Planet;
 import com.zergwar.common.Route;
 import com.zergwar.network.packets.Packet;
 import com.zergwar.network.packets.Packet0Handshake;
+import com.zergwar.network.packets.Packet10PlanetaryUpdate;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
 import com.zergwar.network.packets.Packet3PlayerJoin;
@@ -21,6 +22,7 @@ import com.zergwar.network.packets.Packet4PlayerLeave;
 import com.zergwar.network.packets.Packet5PlayerInfo;
 import com.zergwar.network.packets.Packet6ProbePing;
 import com.zergwar.network.packets.Packet7ProbePong;
+import com.zergwar.network.packets.Packet8ReadyNotReady;
 import com.zergwar.notui.NotUI;
 import com.zergwar.server.NetworkCode;
 import com.zergwar.util.log.Logger;
@@ -28,6 +30,8 @@ import com.zergwar.util.math.ByteUtils;
 
 public class GameClient {
 
+	private static long INACTIVITY_TIME = 1000; //ms
+	
 	private NotUI ui;
 	private NetworkThread networkThread;
 	private Exception currentException;
@@ -39,10 +43,12 @@ public class GameClient {
 	private String playerName;
 	private Color playerColor;
 	private long serverTimestamp;
+	private boolean isReady;
 	
 	private Timer onlineVerifyTimer;
 	
-	public GameClient(String serverIP, int port) {
+	public GameClient(String serverIP, int port)
+	{
 		this.initNotUI();
 		this.state = ClientState.IDLE;
 		this.galaxy = new Galaxy();
@@ -67,7 +73,7 @@ public class GameClient {
 			@Override
 			public void run() {
 				if(state != ClientState.IDLE
-				  && System.currentTimeMillis() - serverTimestamp > 400) {
+				  && System.currentTimeMillis() - serverTimestamp > INACTIVITY_TIME) {
 					onConnectionLost();
 				}
 			}
@@ -104,9 +110,8 @@ public class GameClient {
 	 * Lorsqu'un paquet est reçu !
 	 * @param packet
 	 */
-	public void onPacketReceived(Packet packet) {
-		Logger.log("Incoming packet received by client : "+packet);
-		
+	public void onPacketReceived(Packet packet)
+	{
 		switch(packet.getClass().getSimpleName()) {
 			case "Packet0Handshake":
 				if(this.state == ClientState.IDLE)
@@ -121,6 +126,8 @@ public class GameClient {
 				{
 					this.state = ClientState.SYNCING_PLAYERS;
 					this.ui.setMenu(NotUI.MENU_ID_GAME);
+				} else if(this.state == ClientState.SYNCING_PLAYERS) {
+					this.state = ClientState.IN_LOBBY;
 				}
 				break;
 			case "Packet1Planet":
@@ -181,6 +188,26 @@ public class GameClient {
 				this.send(new Packet7ProbePong());
 				this.serverTimestamp = pPacket.timestamp;
 				this.ui.repaint();
+				break;
+			case "Packet8ReadyNotReady":
+				Packet8ReadyNotReady rPacket = (Packet8ReadyNotReady)packet;
+				RemotePlayer rPly = this.getRemotePlayerByID(rPacket.playerID);
+				if(rPly != null)
+					rPly.setReady(rPacket.readyState);
+				break;
+			case "Packet9GameStart":
+				this.state = ClientState.GAME_STARTING;
+				break;
+			case "Packet10PlanetaryUpdate":
+				if(this.state == ClientState.GAME_STARTING)
+					this.state = ClientState.IN_GAME;
+				Packet10PlanetaryUpdate uPacket = (Packet10PlanetaryUpdate)packet;
+				Planet p = galaxy.getPlanetByName(uPacket.planetName);
+				if(p != null) {
+					p.setOwner(uPacket.ownerID);
+					p.setArmyCount(uPacket.armyCount);
+				}
+				break;
 			default: break;
 		}
 	}
@@ -314,10 +341,6 @@ public class GameClient {
 				// Lance la boucle d'écoute réseau
 				while(isRunning)
 				{
-					if(socket == null) die(NetworkCode.ERR_REGULAR_DISCONNECT);
-					if(socket.isClosed()) die(NetworkCode.ERR_REGULAR_DISCONNECT);
-					if(in == null) die(NetworkCode.ERR_REGULAR_DISCONNECT);
-					
 					if(in.available() > 0) {
 						
 						byte b = (byte)in.read();
@@ -453,5 +476,25 @@ public class GameClient {
 	 */
 	public long getServerTimestamp() {
 		return this.serverTimestamp;
+	}
+
+	/**
+	 * Renvoie l'état actuel du client
+	 * @return
+	 */
+	public ClientState getState() {
+		return this.state;
+	}
+
+	/**
+	 * Si le player notifie qu'il est
+	 * pret
+	 */
+	public void onPlayerReady()
+	{
+		this.isReady = !this.isReady;
+		this.send(
+			new Packet8ReadyNotReady(this.playerID, this.isReady)
+		);
 	}
 }

@@ -6,21 +6,22 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JFrame;
 
+import com.zergwar.client.ClientState;
 import com.zergwar.client.GameClient;
 import com.zergwar.client.RemotePlayer;
 import com.zergwar.common.Planet;
 import com.zergwar.common.Route;
 
-public class NotUI extends JFrame {
+public class NotUI extends JFrame implements KeyListener {
 
 	// GENERIC
 	private static final long serialVersionUID = 1L;
@@ -35,7 +36,6 @@ public class NotUI extends JFrame {
 	public static final int MENU_ID_DISCONNECTED = 4;
 	
 	private int menuID;
-	private Timer renderTimer;
 	
 	// Graphics-related
 	private BufferStrategy bufferStrategy;
@@ -43,7 +43,6 @@ public class NotUI extends JFrame {
 	public NotUI(GameClient client) {
 		this.client = client;
 		this.menuID = MENU_ID_PROBING;
-		this.renderTimer = new Timer();
 		this.initFonts();
 		this.startRender();
 	}
@@ -57,7 +56,11 @@ public class NotUI extends JFrame {
 		this.setLocationRelativeTo(null);
 		this.setBackground(Color.black);
 		this.setVisible(true);
-
+		
+		// Enregistre les listeners
+		this.addKeyListener(this);
+		
+		// Instancie une bufferstrategy
 		this.createBufferStrategy(2);
 		this.bufferStrategy = this.getBufferStrategy();
 	}
@@ -76,19 +79,31 @@ public class NotUI extends JFrame {
 	 */
 	public void startRender()
 	{
-		long lastrenderTime = System.currentTimeMillis();
-		this.renderTimer.schedule(new TimerTask()
+		(new Thread()
 		{
-			public void run() {
-				if(System.currentTimeMillis() - lastrenderTime > 20L) {
-					Graphics2D g = (Graphics2D)bufferStrategy.getDrawGraphics();
-					renderGameFrame(g);
-					g.dispose();
-					bufferStrategy.show();
+			long lastrenderTime = System.currentTimeMillis();
+			
+			// Executes a render loop
+			public void run()
+			{
+				while(true)
+				{
+					try
+					{
+						Graphics2D g = (Graphics2D)bufferStrategy.getDrawGraphics();
+						renderGameFrame(g);
+						g.dispose();
+						bufferStrategy.show();
+						
+						long remainingToSleep = 20 - (System.currentTimeMillis() - lastrenderTime);
+						if(remainingToSleep < 0 ) remainingToSleep = 0;
+						lastrenderTime = System.currentTimeMillis();
+						
+						Thread.sleep(remainingToSleep);
+					} catch (Exception e) {}
 				}
 			}
-			
-		}, 0, 10L);
+		}).start();
 	}
 	
 	/**
@@ -147,19 +162,31 @@ public class NotUI extends JFrame {
 		
 		for(Planet p : this.client.galaxy.planets) {
 			
-			g.setColor(Color.green);
-			
-			g.drawArc(
-				(int)(p.getX() + 75 - p.getDiameter() / 8),
-				(int)(p.getY() + 100 - p.getDiameter() / 8),
-				p.getDiameter() / 4,
-				p.getDiameter() / 4,
-				0,
-				360
-			);
+			if(p.isEmpty()) {
+				g.setColor(Color.green);
+				g.drawArc(
+					(int)(p.getX() + 75 - p.getDiameter() / 8),
+					(int)(p.getY() + 100 - p.getDiameter() / 8),
+					p.getDiameter() / 4,
+					p.getDiameter() / 4,
+					0,
+					360
+				);
+				drawCenteredString(g, Color.gray, regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
+			} else {
+				g.setColor(this.client.getRemotePlayerByID(p.getOwnerID()).getPlayerColor());
+				g.fillArc(
+					(int)(p.getX() + 75 - p.getDiameter() / 8),
+					(int)(p.getY() + 100 - p.getDiameter() / 8),
+					p.getDiameter() / 4,
+					p.getDiameter() / 4,
+					0,
+					360
+				);
+				drawCenteredString(g, this.client.getRemotePlayerByID(p.getOwnerID()).getPlayerColor(), regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
+			}
 			
 			drawCenteredString(g, Color.WHITE, regular, p.getName(), (int)p.getX() + 75, (int)p.getY() + 100+ p.getDiameter() / 4 + 20);
-			drawCenteredString(g, Color.gray, regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
 		}
 		
 		// affiche les joueurs connectés
@@ -176,6 +203,27 @@ public class NotUI extends JFrame {
 		
 		// affiche l'heure de jeu
 		drawTimestamp(g, this.client.getServerTimestamp());
+		
+		// Si en lobby, affiche les instructions du lobby
+		if(this.client.getState() == ClientState.IN_LOBBY) {
+			g.setColor(Color.white);
+			g.drawRect(65, 660, 860, 70);
+			g.drawRect(67, 662, 856, 66);
+			drawCenteredString(g, Color.WHITE, bold, "Salon | En attente d'autres joueurs", 495, 680);
+			drawCenteredString(g, Color.GRAY, regular, "Appuyez sur <R> pour indiquer que vous êtres prêt(e) à jouer !", 495, 700);
+			drawCenteredString(g, Color.GRAY, regular, "La partie commence lorsqu'au moins 2 joueurs connectés sont marqués comme prêts", 495, 720);
+		}
+		
+		// Affiche le gamestart si nécessaire
+		if(this.client.getState() == ClientState.GAME_STARTING) {
+			g.setColor(Color.black);
+			g.fillRect(120, 260, getWidth() - 240, 55);
+			g.setColor(Color.WHITE);
+			g.drawRect(120, 260, getWidth() - 240, 55);
+			g.drawRect(120, 315, getWidth() - 240, 3);
+			g.setFont(regular.deriveFont(38f));
+			g.drawString("Démarrage de la partie...", 280, 300);
+		}
 	}
 
 	/**
@@ -227,14 +275,26 @@ public class NotUI extends JFrame {
 		int position = 0;
 		
 		for(RemotePlayer p : players)
-		{
-			g.setFont(regular.deriveFont(12f));
+		{			
 			g.setColor(Color.white);
 			g.drawRect(x + position * 130, y, 120, 30);
 			g.setColor(p.getPlayerColor());
 			g.fillRect(x + position * 130 + 5, y + 5, 30, 20);
 			g.setColor(Color.white);
-			g.drawString(p.getName(), x + position * 130 + 40, y + 18);
+			g.setFont(bold.deriveFont(12f));
+			g.drawString(p.getName(), x + position * 130 + 40, y + 13);
+			
+			g.setFont(regular.deriveFont(12f));
+			
+			if(this.client.getState() == ClientState.IN_LOBBY)
+				if(p.isReady()) {
+					g.setColor(Color.green);
+					g.drawString("READY", x + position * 130 + 40, y + 25);
+				} else {
+					g.setColor(Color.gray);
+					g.drawString("NOT READY", x + position * 130 + 40, y + 25);
+				}
+			
 			g.setFont(regular);
 			
 			position++;
@@ -325,5 +385,29 @@ public class NotUI extends JFrame {
 	public void setMenu(int menuID) {
 		this.menuID = menuID;
 		this.repaint();
+	}
+
+	@Override
+	public void keyPressed(KeyEvent kev) {
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent kev)
+	{
+		switch(kev.getKeyCode())
+		{
+			case KeyEvent.VK_R:
+				if(this.client.getState() == ClientState.IN_LOBBY)
+					this.client.onPlayerReady();
+				break;
+			default: break;
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent kev)
+	{
+	
 	}
 }

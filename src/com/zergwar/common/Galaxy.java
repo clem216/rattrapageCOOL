@@ -1,5 +1,7 @@
 package com.zergwar.common;
 
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.zergwar.util.config.Configuration;
@@ -82,5 +84,29 @@ public class Galaxy {
 		for(Planet p : this.planets)
 			if(p.getName().equals(name)) return p;
 		return null;
+	}
+
+	/**
+	 * Renvoie une planète vide au hasard parmi
+	 * les planètes du jeu
+	 * @return
+	 */
+	public Planet getRandomEmptyPlanet()
+	{
+		ArrayList<Planet> emptyPlanets = this.getEmptyPlanets();
+		Random r = new Random();
+		return emptyPlanets.get(r.nextInt(emptyPlanets.size()));
+	}
+
+	/**
+	 * Renvoie la liste des planètes inoccupées de la galaxie
+	 * @return
+	 */
+	private ArrayList<Planet> getEmptyPlanets() {
+		ArrayList<Planet> emptyPlanets = new ArrayList<Planet>();
+		for(Planet p : this.planets)
+			if(p.isEmpty())
+				emptyPlanets.add(p);
+		return emptyPlanets;
 	}
 }

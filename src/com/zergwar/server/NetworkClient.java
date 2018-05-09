@@ -20,6 +20,7 @@ public class NetworkClient extends Thread implements Runnable{
 	private int playerID;
 	private String playerName;
 	private Color playerColor;
+	private boolean isReady;
 	
 	public static final int ST_WAIT_HANDSHAKE = 1;
 	public static final int ST_READ_DATALEN   = 2;
@@ -61,14 +62,7 @@ public class NetworkClient extends Thread implements Runnable{
 	 */
 	public void run()
 	{
-		int dataLenIndex = 0;
-		int dataLen = 0;
-		int dataIndex = 0;
-		int pkType = 0;
-		
-		byte[] buffer = new byte[6];
-		byte[] dataLenBuffer = new byte[4];
-		byte[] data = new byte[0];
+		byte[] received = new byte[0];
 		
 		try {
 			InputStream in = socket.getInputStream();
@@ -79,63 +73,86 @@ public class NetworkClient extends Thread implements Runnable{
 				if(socket.isClosed()) die(NetworkCode.ERR_REGULAR_DISCONNECT);
 				if(in == null) die(NetworkCode.ERR_REGULAR_DISCONNECT);
 				
-				if(in.available() > 0) {
+				if(in.available() > 0)
+				{
+					received = new byte[in.available()];
+					in.read(received);
 					
-					byte b = (byte)in.read();
-					bufferize(buffer, b);
-
-					switch(state) {
-						case ST_WAIT_HANDSHAKE:
-							
-							if(b == (byte)0xEE && ByteUtils.bytesArrayToHexString(buffer).equals("0651FF23DDEE")) {
-								state = ST_READ_DATALEN;
-								dataLenIndex = 0;
-							}
-							
-							break;
-						case ST_READ_DATALEN:
-							dataLenBuffer[dataLenIndex++] = b;
-							
-							if(dataLenIndex > 3) {
-								state = ST_READ_PKTYPE;
-								dataLen = ByteUtils.byteArrayToInt(dataLenBuffer);
-								if(dataLen == 0) state = ST_WAIT_HANDSHAKE;
-								dataLenIndex = 0;
-							}
-							
-							break;
-						case ST_READ_PKTYPE:
-							dataLenBuffer[dataLenIndex++] = b;
-							
-							if(dataLenIndex > 3) {
-								state = ST_READ_DATA;
-								pkType = ByteUtils.byteArrayToInt(dataLenBuffer);
-								dataIndex = 0;
-								data = new byte[dataLen];
-							}
-							
-							break;
-						case ST_READ_DATA:
-							
-							if(dataIndex < dataLen)
-								data[dataIndex++] = b;
-							
-							if(dataIndex >= dataLen) {
-								processRawIncomingPacket(pkType, data);
-								state = ST_WAIT_HANDSHAKE;
-							}
-							
-							break;
-						default:
-							state = ST_WAIT_HANDSHAKE;
-							break;
-					}
+					processIncomingDatachunk(received);
 				}
+				
 			}
 		} catch(Exception e) {
 			Logger.log("Client crashed : " + e);
 			e.printStackTrace();
 			die(NetworkCode.ERR_GENERIC);
+		}
+	}
+	
+	/**
+	 * Traite un fragment de données entrant
+	 */
+	private void processIncomingDatachunk(byte[] datachunk)
+	{
+		int dataLenIndex = 0;
+		int dataLen = 0;
+		int dataIndex = 0;
+		int pkType = 0;
+		
+		byte[] buffer = new byte[6];
+		byte[] dataLenBuffer = new byte[4];
+		byte[] data = new byte[0];
+		
+		for(byte b : datachunk)
+		{
+			bufferize(buffer, b);
+	
+			switch(state) {
+				case ST_WAIT_HANDSHAKE:
+					
+					if(b == (byte)0xEE && ByteUtils.bytesArrayToHexString(buffer).equals("0651FF23DDEE")) {
+						state = ST_READ_DATALEN;
+						dataLenIndex = 0;
+					}
+					
+					break;
+				case ST_READ_DATALEN:
+					dataLenBuffer[dataLenIndex++] = b;
+					
+					if(dataLenIndex > 3) {
+						state = ST_READ_PKTYPE;
+						dataLen = ByteUtils.byteArrayToInt(dataLenBuffer);
+						if(dataLen == 0) state = ST_WAIT_HANDSHAKE;
+						dataLenIndex = 0;
+					}
+					
+					break;
+				case ST_READ_PKTYPE:
+					dataLenBuffer[dataLenIndex++] = b;
+					
+					if(dataLenIndex > 3) {
+						state = ST_READ_DATA;
+						pkType = ByteUtils.byteArrayToInt(dataLenBuffer);
+						dataIndex = 0;
+						data = new byte[dataLen];
+					}
+					
+					break;
+				case ST_READ_DATA:
+					
+					if(dataIndex < dataLen)
+						data[dataIndex++] = b;
+					
+					if(dataIndex >= dataLen) {
+						processRawIncomingPacket(pkType, data);
+						state = ST_WAIT_HANDSHAKE;
+					}
+					
+					break;
+				default:
+					state = ST_WAIT_HANDSHAKE;
+					break;
+			}
 		}
 	}
 	
@@ -250,5 +267,21 @@ public class NetworkClient extends Thread implements Runnable{
 	 */
 	public long getInactivity() {
 		return System.currentTimeMillis() - lastUpdateTimestamp;
+	}
+
+	/**
+	 * Renvoie si le joueur est pret
+	 * @return
+	 */
+	public boolean getReady() {
+		return this.isReady;
+	}
+
+	/**
+	 * Le joueur est prêt
+	 * @param readyState
+	 */
+	public void setReady(boolean readyState) {
+		this.isReady = readyState;
 	}
 }

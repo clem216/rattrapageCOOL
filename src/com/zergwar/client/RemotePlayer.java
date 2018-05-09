@@ -7,11 +7,13 @@ public class RemotePlayer {
 	private int id;
 	private Color color;
 	private String playerName;
+	private boolean ready;
 	
 	public RemotePlayer(String playerName, int playerID, Color color) {
 		this.id = playerID;
 		this.playerName = playerName;
 		this.color = color;
+		this.ready = false;
 	}
 	
 	/**
@@ -36,6 +38,22 @@ public class RemotePlayer {
 	 */
 	public String getName() {
 		return this.playerName;
+	}
+	
+	/**
+	 * Renvoie l'état ready
+	 * @return
+	 */
+	public boolean isReady() {
+		return this.ready;
+	}
+
+	/**
+	 * Set readyness level
+	 * @param readyState
+	 */
+	public void setReady(boolean readyState) {
+		this.ready = readyState;
 	}
 
 }
