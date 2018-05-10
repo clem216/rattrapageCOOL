@@ -164,6 +164,14 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 		}
 		
 		g.setColor(Color.white);
+		if(client.getCurrentPlayer() != null) {
+			if(this.client.getCurrentPlayer().getPlayerID() == this.client.getPlayerId())
+			{
+				g.setColor(Color.green);
+				g.drawRect(66, 101, 858, 498);
+			}
+		}
+		
 		g.drawRect(65, 100, 860, 500);
 		
 		for(Planet p : this.client.galaxy.planets) {
@@ -325,7 +333,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 			// Indication de tour
 			if(this.client.getCurrentPlayer().getPlayerID() == this.client.getPlayerId())
 			{
-				g.setColor(Color.white);
+				g.setColor(Color.green);
 				g.setFont(bold);
 				g.drawString("C'est votre tour !", 65, 680);
 				g.setFont(regular);

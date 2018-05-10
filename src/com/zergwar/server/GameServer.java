@@ -311,12 +311,12 @@ public class GameServer implements NetworkEventListener {
 	{
 		// Si la planète source est identique à la cible, abandon immédiat
 		if(packet.sourcePlanet.equals(packet.destPlanet)) {
-			author.sendPacket(new Packet14TransfertFailure(
+			this.netAgent.broadcast(new Packet14TransfertFailure(
 				packet.playerID,
 				packet.sourcePlanet,
 				packet.destPlanet,
 				"Transfert d'une planète à elle-même interdit !"
-			));
+			), null);
 		
 			return;
 		}
@@ -511,8 +511,21 @@ public class GameServer implements NetworkEventListener {
 	/**
 	 * résoud la régénération sur les planètes
 	 */
-	private void resolveRegen() {
-		// TODO add regen resolve
+	private void resolveRegen()
+	{
+		for(Planet p : this.galaxy.planets)
+		{
+			if(p.getOwnerID() != -1) {
+				p.setArmyCount(p.getArmyCount() + 10);
+			}
+			
+			// Synchro générale
+			this.netAgent.broadcast(new Packet10PlanetaryUpdate(
+				p.getName(),
+				p.getOwnerID(),
+				p.getArmyCount()
+			), null);
+		}
 	}
 
 	/**

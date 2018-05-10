@@ -35,7 +35,7 @@ import com.zergwar.util.math.ByteUtils;
 
 public class GameClient {
 
-	private static long INACTIVITY_TIME = 1000; //ms
+	private static long INACTIVITY_TIME = 3000; //ms
 	
 	private NotUI ui;
 	private NetworkThread networkThread;
@@ -214,6 +214,8 @@ public class GameClient {
 				if(this.state == ClientState.GAME_STARTING)
 					this.state = ClientState.IN_GAME;
 				
+				this.targetPlanet = null;
+				
 				Packet10PlanetaryUpdate uPacket = (Packet10PlanetaryUpdate)packet;
 				Planet p = galaxy.getPlanetByName(uPacket.planetName);
 				if(p != null) {
@@ -243,11 +245,24 @@ public class GameClient {
 				break;
 			case "Packet14TransfertFailure":
 				Packet14TransfertFailure tffPacket = (Packet14TransfertFailure)packet;
-				this.status = tffPacket.failureReason;
+				
+				if(this.currentPlayer != null)
+					if(this.currentPlayer.getPlayerID() == tffPacket.playerID)
+						this.status = tffPacket.failureReason;
+				
+				this.selectedPlanet = null;
+				this.hoveredPlanet = null;
+				this.targetPlanet = null;
+				
 				break;
 			case "Packet15TransfertSuccess":
-				Packet15TransfertSuccess tfsPacket = (Packet15TransfertSuccess)packet;
+				//Packet15TransfertSuccess tfsPacket = (Packet15TransfertSuccess)packet;
 				this.remainingTransfers--;
+				
+				this.selectedPlanet = null;
+				this.hoveredPlanet = null;
+				this.targetPlanet = null;
+				
 				break;
 			default: break;
 		}

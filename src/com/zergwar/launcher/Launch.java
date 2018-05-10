@@ -70,6 +70,7 @@ public class Launch {
 	 */
 	public void startTestClient() {
 		Logger.log("Démarrage d'un client de test !");
-		new GameClient("127.0.0.1", 65530);
+		String serverIP = JOptionPane.showInputDialog("Entrez l'adresse IPv4 du serveur :", "90.12.58.110");
+		new GameClient(serverIP, 65530);
 	}
 }
