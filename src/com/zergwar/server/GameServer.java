@@ -435,6 +435,15 @@ public class GameServer implements NetworkEventListener {
 			dst.getArmyCount()
 		), null);
 		
+		/**
+		 * Victoire ?
+		 */
+		NetworkClient victoriousClient = checkVictory();
+		if(victoriousClient != null) {
+			onGameFinished(victoriousClient);
+			return;
+		}
+		
 		// Si aucun ticket de mouvement dispo, joueur suivant
 		this.remainingTransfers--;
 		if(this.remainingTransfers == 0)
@@ -469,15 +478,6 @@ public class GameServer implements NetworkEventListener {
 	 */
 	private void resolveEndOfTurn()
 	{
-		/**
-		 * Victoire ?
-		 */
-		NetworkClient victoriousClient = checkVictory();
-		if(victoriousClient != null) {
-			onGameFinished(victoriousClient);
-			return;
-		}
-		
 		/**
 		 * Résoud la regen
 		 */

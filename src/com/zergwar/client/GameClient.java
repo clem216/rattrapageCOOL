@@ -728,8 +728,8 @@ public class GameClient {
 	 * @return
 	 */
 	public boolean isWinner() {
-		// TODO Auto-generated method stub
-		return false;
+		if(this.winner == null) return false;
+		return this.winner.getPlayerID() == this.playerID;
 	}
 
 	/**
