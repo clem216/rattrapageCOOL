@@ -223,6 +223,11 @@ public class GameClient {
 				break;
 			case "Packet11NewTurn":
 				Packet11NewTurn tPacket = (Packet11NewTurn)packet;
+				
+				this.selectedPlanet = null;
+				this.hoveredPlanet = null;
+				this.targetPlanet = null;
+				
 				this.currentPlayer = this.getRemotePlayerByID(tPacket.playerID);
 				this.remainingTransfers = tPacket.transferCount;
 				break;
@@ -603,7 +608,7 @@ public class GameClient {
 					));
 					
 					// Envoi de l'ordre de transfert
-					// ordre décalé d'une seconde 1/2 pour laisser
+					// ordre décalé de 800ms pour laisser
 					// le temps aux autres de voir le déplacement
 					// To be fixed, pas très joli =)
 					new Timer().schedule(new TimerTask()
@@ -618,7 +623,7 @@ public class GameClient {
 							selectedPlanet = null;
 							targetPlanet = null;
 						}
-					}, 1500L);
+					}, 800L);
 				} else {
 					this.selectedPlanet = p;
 					this.send(new Packet12PlanetSelect(
