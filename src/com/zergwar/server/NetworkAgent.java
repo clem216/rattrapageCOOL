@@ -177,7 +177,7 @@ public class NetworkAgent {
 	 * @param networkClient
 	 */
 	public void onClientDisconnected(NetworkClient networkClient, NetworkCode reason)
-	{	
+	{			
 		// D'abord, notifier du quit
 		this.broadcast(
 			new Packet4PlayerLeave(networkClient.getPlayerId()),

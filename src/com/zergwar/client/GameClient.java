@@ -19,7 +19,6 @@ import com.zergwar.network.packets.Packet11NewTurn;
 import com.zergwar.network.packets.Packet12PlanetSelect;
 import com.zergwar.network.packets.Packet13Transfert;
 import com.zergwar.network.packets.Packet14TransfertFailure;
-import com.zergwar.network.packets.Packet15TransfertSuccess;
 import com.zergwar.network.packets.Packet16Victory;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
@@ -60,18 +59,34 @@ public class GameClient {
 	private Planet hoveredPlanet;
 	private Planet selectedPlanet;
 
+	private String serverIP;
+	private int serverPort;
+	
 	private RemotePlayer winner;
 
 	private int winningZergs;
 	
 	public GameClient(String serverIP, int port)
 	{
+		this.serverIP = serverIP;
+		this.serverPort = port;
+		
+		this.initClient();
+	}
+
+	/**
+	 * Initialise le client
+	 * @param serverIP
+	 * @param port
+	 */
+	private void initClient()
+	{
 		this.initNotUI();
 		this.state = ClientState.IDLE;
-		this.galaxy = new Galaxy();
+		this.galaxy = new Galaxy(-1); // Not loaded locally
 		this.players = new CopyOnWriteArrayList<RemotePlayer>();
 		this.networkThread = new NetworkThread(this);
-		this.networkThread.connect(serverIP, port);
+		this.networkThread.connect(this.serverIP, this.serverPort);
 		this.playerID = -1;
 		this.playerColor = Color.black;
 		this.onlineVerifyTimer = new Timer();
@@ -96,6 +111,14 @@ public class GameClient {
 			}
 			
 		}, 0, 400L);
+	}
+	
+	/**
+	 * Interrompt le monitoring de l'état
+	 */
+	private void stopOnlineVerify()
+	{
+		this.onlineVerifyTimer.cancel();
 	}
 
 	/**
@@ -187,10 +210,10 @@ public class GameClient {
 				Packet4PlayerLeave lPacket = (Packet4PlayerLeave)packet;
 				RemotePlayer ply = getRemotePlayerByID(lPacket.playerID);
 				if(ply != null) {
+					Logger.log("Player "+ply+"left the game");
 					this.status = "[ Player " + ply.getName() + " left the game ]";
 					this.players.remove(ply);
 				}
-				ui.repaint();
 				break;
 			case "Packet5PlayerInfo":
 				Packet5PlayerInfo iPacket = (Packet5PlayerInfo)packet;
@@ -275,10 +298,23 @@ public class GameClient {
 				this.targetPlanet = null;
 				
 				Packet16Victory vPacket = (Packet16Victory)packet;
-				this.winner = this.getRemotePlayerByID(vPacket.playerID);
-				this.winningZergs = vPacket.finalZergCount;
-				this.state = ClientState.IN_VICTORY_MENU;
-				this.ui.setMenu(NotUI.MENU_ID_FINISHED);
+				if(vPacket.finalZergCount >= 0)
+				{
+					this.stopOnlineVerify();
+					if(vPacket.finalZergCount > 0)
+						this.winner = this.getRemotePlayerByID(vPacket.playerID);
+					
+					this.winningZergs = vPacket.finalZergCount;
+					this.state = ClientState.IN_VICTORY_MENU;
+					this.ui.setMenu(NotUI.MENU_ID_FINISHED);
+				} else {
+					this.status = "[ Le joueur "+ this.getRemotePlayerByID(vPacket.playerID) + " a été éliminé !]";
+				}
+				
+				break;
+			case "Packet17AlreadyInGame":
+				this.state = ClientState.IN_ALREADY_IG_MENU;
+				this.ui.setMenu(NotUI.MENU_ID_ALREADYIG);
 				break;
 			default: break;
 		}
@@ -738,5 +774,13 @@ public class GameClient {
 	 */
 	public int getFinalZergCount() {
 		return this.winningZergs;
+	}
+
+	/**
+	 * Réinitialise le client et se reconnecte au serveur
+	 */
+	public void resetClient() {
+		this.stopOnlineVerify();
+		this.initClient();
 	}
 }

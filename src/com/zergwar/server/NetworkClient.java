@@ -84,8 +84,7 @@ public class NetworkClient extends Thread implements Runnable{
 				
 			}
 		} catch(Exception e) {
-			Logger.log("Client crashed : " + e);
-			e.printStackTrace();
+			Logger.log("Client is not available anymore. Skipping");
 			die(NetworkCode.ERR_GENERIC);
 		}
 	}
@@ -308,5 +307,20 @@ public class NetworkClient extends Thread implements Runnable{
 	 */
 	public int getTotalZergCount() {
 		return this.zergCount;
+	}
+
+	/**
+	 * Le serveur déconnecte ce client
+	 */
+	public void disconnect() {
+		this.agent.onClientDisconnected(this, NetworkCode.ERR_ELIMINATED);
+	}
+
+	/**
+	 * Renvoie le socket utilisé pour la liaison
+	 * @return
+	 */
+	public Socket getSocket() {
+		return this.socket;
 	}
 }

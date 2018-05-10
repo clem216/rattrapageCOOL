@@ -4,6 +4,7 @@ import javax.swing.JOptionPane;
 
 import com.zergwar.client.GameClient;
 import com.zergwar.server.GameServer;
+import com.zergwar.util.config.Configuration;
 import com.zergwar.util.log.Logger;
 
 /**
@@ -61,7 +62,21 @@ public class Launch {
 	 */
 	public void startServer() {
 		Logger.log("Démarrage du serveur...");
-		GameServer server = new GameServer();
+		String mapIndex = JOptionPane.showInputDialog("Saisir l'ID de map souhaité :\n[0] Map COOL\n[1] Custom PAUL 1", "0");
+		
+		int mapID = -1;
+		
+		try {
+			mapID = Integer.valueOf(mapIndex);
+		} catch(Exception e) {
+			JOptionPane.showConfirmDialog(null, "Erreur : map invalide !");
+		}
+		
+		if(mapID > Configuration.PLANETES.length && mapID < 0)
+			JOptionPane.showConfirmDialog(null, "Erreur : map invalide !");
+		
+		// Démarre le serveur
+		GameServer server = new GameServer(mapID);
 		server.start();
 	}
 	

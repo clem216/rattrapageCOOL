@@ -17,6 +17,7 @@ import com.zergwar.network.packets.Packet13Transfert;
 import com.zergwar.network.packets.Packet14TransfertFailure;
 import com.zergwar.network.packets.Packet15TransfertSuccess;
 import com.zergwar.network.packets.Packet16Victory;
+import com.zergwar.network.packets.Packet17AlreadyInGame;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
 import com.zergwar.network.packets.Packet3PlayerJoin;
@@ -41,6 +42,9 @@ public class GameServer implements NetworkEventListener {
 	public static final int ST_GAME_LOBBY   = 0;
 	public static final int ST_GAME_STARTED = 1;
 	public static final int ST_GAME_RESULTS = 2;
+	
+	// ingamestate to eject logging in clients while playing
+	boolean inGame;
 	
 	// Couleurs & noms de joueurs possibles
 	public static Color[] colorTable = {
@@ -73,9 +77,19 @@ public class GameServer implements NetworkEventListener {
 	private NetworkClient currentPlayer;
 	private int remainingTransfers;
 	private CopyOnWriteArrayList<NetworkClient> remainingInTurn;
+	private int mapIndex;
 	
-	public GameServer() {
-		this.galaxy = new Galaxy();
+	public GameServer(int mapIndex) {
+		this.mapIndex = mapIndex;
+		this.initGameServer(mapIndex);
+	}
+	
+	/**
+	 * Initialise le serveur de jeu
+	 * @param mapIndex
+	 */
+	public void initGameServer(int mapIndex) {
+		this.galaxy = new Galaxy(mapIndex);
 		this.probeBeacon = new Timer();
 		this.remainingInTurn = new CopyOnWriteArrayList<NetworkClient>();
 		this.netAgent = new NetworkAgent(SERVER_PORT);
@@ -83,6 +97,9 @@ public class GameServer implements NetworkEventListener {
 		this.initCleanThread();
 	}
 
+	/**
+	 * Démarre le serveur
+	 */
 	public void start() {
 		Logger.log("Starting gameserver...");
 		this.galaxy.initGalaxy();
@@ -90,6 +107,9 @@ public class GameServer implements NetworkEventListener {
 		this.startBeacon();
 	}
 	
+	/**
+	 * Stoppe le serveur
+	 */
 	public void stop() {
 		Logger.log("Stopping gameserver...");
 		this.netAgent.stop();
@@ -109,7 +129,7 @@ public class GameServer implements NetworkEventListener {
 				while(true)
 				{
 					// Cleane les clients n'ayant pas donné signe de vie
-					// depuis plus de 400ms
+					// depuis plus de 1000ms
 					for(NetworkClient cli : netAgent.getClients()) {
 						if(cli.getInactivity() > INACTIVITY_DELAY) {
 							Logger.log("Disconnecting client "+cli+" for inactivity");
@@ -159,6 +179,11 @@ public class GameServer implements NetworkEventListener {
 	@Override
 	public void onClientConnected(NetworkClient client)
 	{
+		// Reject inbound connections if in game
+		if(this.inGame) {
+			client.sendPacket(new Packet17AlreadyInGame());
+			return;
+		}
 
 		pauseGame();
 		
@@ -272,8 +297,13 @@ public class GameServer implements NetworkEventListener {
 	}
 
 	@Override
-	public void onClientDisconnected(NetworkClient client, NetworkCode reason) {
-		Logger.log(client+" disconnected !");
+	public void onClientDisconnected(NetworkClient client, NetworkCode reason)
+	{
+		Logger.log("Removing "+client+" from turn tracking list");
+		if(this.remainingInTurn.size() > 0)
+			this.remainingInTurn.remove(client);
+		if(this.remainingInTurn.size() == 0)
+			this.resetGameServer();
 	}
 
 	@Override
@@ -436,11 +466,11 @@ public class GameServer implements NetworkEventListener {
 		), null);
 		
 		/**
-		 * Victoire ?
+		 * Un client doit il être éliminé ?
 		 */
-		NetworkClient victoriousClient = checkVictory();
-		if(victoriousClient != null) {
-			onGameFinished(victoriousClient);
+		NetworkClient defeatedClient = checkDefeated();
+		if(defeatedClient != null) {
+			onClientDefeated(defeatedClient);
 			return;
 		}
 		
@@ -448,6 +478,27 @@ public class GameServer implements NetworkEventListener {
 		this.remainingTransfers--;
 		if(this.remainingTransfers == 0)
 			nextPlayerTurn();
+	}
+
+	/**
+	 * Eliminie un client défait, et vérifie les
+	 * conditions de victoire
+	 * @param defeatedClient
+	 */
+	private void onClientDefeated(NetworkClient defeatedClient)
+	{
+		// Notifie à tout le monde de l'élimination (victory à--1 = joueur éliminé)
+		this.netAgent.broadcast(new Packet16Victory(
+			defeatedClient.getPlayerId(),
+			-1
+		), null);
+		
+		defeatedClient.disconnect();
+		
+		// Victory ?
+		if(this.netAgent.getClients().size() == 1) {
+			onGameFinished(this.netAgent.getClients().remove(0));
+		}
 	}
 
 	/**
@@ -502,21 +553,18 @@ public class GameServer implements NetworkEventListener {
 
 	/**
 	 * Renvoie l'éventuel client remplissant les
-	 * conditions de victoire, null sinon
+	 * conditions de défaite, et l'éjecte de la partie
 	 * @return
 	 */
-	private NetworkClient checkVictory()
+	private NetworkClient checkDefeated()
 	{
 		for(NetworkClient client : this.netAgent.getClients())
 		{
-			int totalOwnedPlanets = 0;
 			int totalOwnedZergs = 0;
 			
 			for(Planet p : this.galaxy.planets) {
-				if(p.getOwnerID() == client.getPlayerId()) {
-					totalOwnedPlanets++;
+				if(p.getOwnerID() == client.getPlayerId())
 					totalOwnedZergs += p.getArmyCount();
-				}
 			}
 			
 			// Enregistre le nombre de zergs contrôlés (pour ref)
@@ -524,7 +572,7 @@ public class GameServer implements NetworkEventListener {
 			
 			// si le nombre de planetes possédées vaut celui
 			// de la galaxie, alors victoire
-			if(totalOwnedPlanets == this.galaxy.planets.size())
+			if(totalOwnedZergs == 0)
 				return client;
 		}
 		
@@ -539,7 +587,7 @@ public class GameServer implements NetworkEventListener {
 		for(Planet p : this.galaxy.planets)
 		{
 			if(p.getOwnerID() != -1) {
-				p.setArmyCount(p.getArmyCount() + 10);
+				p.setArmyCount(p.getArmyCount() + Configuration.TAUX_REGEN_NOMINAL);
 			}
 			
 			// Synchro générale
@@ -568,8 +616,7 @@ public class GameServer implements NetworkEventListener {
 	 * pour une nouvelle partie
 	 */
 	private void resetGameServer() {
-		this.initializeGameboard();
-		// TODO not supported yet
+		this.initGameServer(this.mapIndex);
 	}
 
 	/**
@@ -596,6 +643,8 @@ public class GameServer implements NetworkEventListener {
 	 */
 	private void onGameReady()
 	{
+		this.inGame = true;
+		
 		// Notifie les clients du début de la partie
 		this.netAgent.broadcast(new Packet9GameStart(), null);
 		
@@ -705,7 +754,7 @@ public class GameServer implements NetworkEventListener {
 		for(NetworkClient client : this.netAgent.getClients())
 			if(client.getReady())
 				rdyCount++;
-		return (rdyCount>0) && rdyCount == this.netAgent.getClients().size(); // TODO change to 1
+		return (rdyCount > 1) && rdyCount == this.netAgent.getClients().size(); // TODO >1
 	}
 
 	/**

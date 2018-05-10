@@ -11,11 +11,17 @@ public class Galaxy {
 
 	public CopyOnWriteArrayList<Planet> planets;
 	public CopyOnWriteArrayList<Route> routes;
+	private int currentMap;
+	
+	// maps in static config
+	public static int MAP_COOL          = 0;
+	public static int MAP_CUSTOM_PAUL_1 = 1;
 	
 	/**
 	 * Galaxie
 	 */
-	public Galaxy() {
+	public Galaxy(int mapID) {
+		this.currentMap = mapID;
 		this.planets = new CopyOnWriteArrayList<Planet>();
 		this.routes = new CopyOnWriteArrayList<Route>();
 	}
@@ -40,7 +46,7 @@ public class Galaxy {
 	 */
 	public void loadPlanets()
 	{
-		for(String planetStr : Configuration.PLANETES) {
+		for(String planetStr : Configuration.PLANETES[this.currentMap]) {
 			String[] planetStrT = planetStr.split(" ");
 			if(planetStrT.length != 4) break;
 			
@@ -62,7 +68,7 @@ public class Galaxy {
 	 */
 	public void loadRoutes()
 	{
-		for(String[] route : Configuration.ROUTES) {
+		for(String[] route : Configuration.ROUTES[this.currentMap]) {
 			if (route.length != 2) break;
 			
 			Planet source = getPlanetByName(route[0]);

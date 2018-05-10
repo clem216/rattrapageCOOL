@@ -39,8 +39,10 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	public static final int MENU_ID_GAME         = 3;
 	public static final int MENU_ID_DISCONNECTED = 4;
 	public static final int MENU_ID_FINISHED     = 5;
+	public static final int MENU_ID_ALREADYIG    = 6;
 	
 	private int menuID;
+	private float tick;
 	
 	// Graphics-related
 	private BufferStrategy bufferStrategy;
@@ -106,6 +108,8 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 						if(remainingToSleep < 0 ) remainingToSleep = 0;
 						lastrenderTime = System.currentTimeMillis();
 						
+						tick += .2f;
+						
 						Thread.sleep(remainingToSleep);
 					} catch (Exception e) {}
 				}
@@ -143,6 +147,9 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 			case MENU_ID_FINISHED:
 				renderMenuFinished(g);
 				break;
+			case MENU_ID_ALREADYIG:
+				renderMenuAlreadyIG(g);
+				break;
 			default: break;
 		}
 	}
@@ -172,7 +179,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 		drawCenteredString(g, Color.green, bold, ""+this.client.getFinalZergCount(), getWidth() / 2, 425);
 	
 		drawCenteredString(g, Color.white, regular, "Merci d'avoir joué à ZergWar", getWidth() / 2, 480);
-		drawCenteredString(g, Color.white, regular, "Pour redémarrer une partie, relancer le serveur et le client.", getWidth() / 2, 500);
+		drawCenteredString(g, Color.white, regular, "Appuyer sur <ECHAP> pour revenir au salon de jeu", getWidth() / 2, 500);
 	}
 
 	/**
@@ -235,15 +242,17 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 			// Si hovered
 			if(this.client.getState() == ClientState.IN_GAME)
 			if(p.equals(this.client.getHoveredPlanet())) {
-				g.setColor(Color.orange);
+				g.setColor(Color.white);
+				g.setStroke(new BasicStroke(2));
 				g.drawArc(
-					(int)(p.getX() + 75 - p.getDiameter() / 8 - 10),
-					(int)(p.getY() + 100 - p.getDiameter() / 8 - 10),
-					p.getDiameter() / 4 + 20,
-					p.getDiameter() / 4 + 20,
+					(int)(p.getX() + 75 - p.getDiameter() / 8 - 10 - (int)(5 * Math.sin(tick))),
+					(int)(p.getY() + 100 - p.getDiameter() / 8 - 10 - (int)(5 * Math.sin(tick))),
+					p.getDiameter() / 4 + 20 + (int)(10 * Math.sin(tick)),
+					p.getDiameter() / 4 + 20 + (int)(10 * Math.sin(tick)),
 					0,
 					360
 				);
+				g.setStroke(new BasicStroke(1));
 			}
 			
 
@@ -290,14 +299,16 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 			}
 			
 			// Si une planète est sélectionnée ET une est hovered
-			if(this.client.getSelectedPlanet() != null && this.client.getHoveredPlanet() != null) {
+			if(this.client.getSelectedPlanet() != null && this.client.getHoveredPlanet() != null && this.client.getTargetPlanet() == null) {
 				g.setColor(Color.white);
+				g.setStroke(new BasicStroke((int)(3+1.5d* Math.sin(tick))));
 				g.drawLine(
 					(int)this.client.getSelectedPlanet().getX() + 75,
 					(int)this.client.getSelectedPlanet().getY() + 100,
 					(int)this.client.getHoveredPlanet().getX() + 75,
 					(int)this.client.getHoveredPlanet().getY() + 100
 				);
+				g.setStroke(new BasicStroke(1));
 			}
 			
 
@@ -433,13 +444,16 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 		for(RemotePlayer p : players)
 		{			
 			g.setColor(Color.white);
-			g.drawRect(x + position * 130, y, 120, 30);
 			
 			// Dessine une barre sous le joueur qui joue
 			// actuellement
 			if(p.equals(this.client.getCurrentPlayer())) {
+				g.setStroke(new BasicStroke((int)(3+1.5d* Math.sin(tick / 2.0f))));
+				g.drawRect(x + position * 130, y, 120, 30);
+				g.setStroke(new BasicStroke(1));
 				g.fillRect(x + position * 130, y + 35, 120, 5);
-			}
+			} else
+				g.drawRect(x + position * 130, y, 120, 30);
 			
 			g.setColor(p.getPlayerColor());
 			g.fillRect(x + position * 130 + 5, y + 5, 30, 20);
@@ -471,6 +485,16 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	private void renderMenuError(Graphics2D g) {
 		drawCenteredString(g, Color.red, regular, "!! Une erreur est survenue !!", getWidth() / 2, getHeight() / 2 - 12);
 		drawCenteredString(g, Color.orange, regular, "Erreur : "+client.getCurrentException(), getWidth() / 2, getHeight() / 2 + 12);
+	}
+	
+	/**
+	 * Dessine le menu d'erreur
+	 * @param g
+	 */
+	private void renderMenuAlreadyIG(Graphics2D g) {
+		drawCenteredString(g, Color.cyan, regular, "La partie a déjà commencé !", getWidth() / 2, getHeight() / 2 - 12);
+		drawCenteredString(g, Color.white, regular, "Merci d'attendre la fin de la partie en cours", getWidth() / 2, getHeight() / 2 + 12);
+		drawCenteredString(g, Color.white, regular, "ou vous connecter à un autre serveur", getWidth() / 2, getHeight() / 2 + 32);
 	}
 	
 	/**
@@ -563,6 +587,11 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 			case KeyEvent.VK_R:
 				if(this.client.getState() == ClientState.IN_LOBBY)
 					this.client.onPlayerReady();
+				break;
+			case KeyEvent.VK_ESCAPE:
+				if(this.client.getState() == ClientState.IN_VICTORY_MENU) {
+					this.client.resetClient();
+				}
 				break;
 			default: break;
 		}
