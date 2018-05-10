@@ -559,7 +559,7 @@ public class GameServer implements NetworkEventListener {
 	{
 		this.netAgent.broadcast(new Packet16Victory(
 			victoriousClient.getPlayerId(),
-			0 // TODO to be fixed
+			victoriousClient.getTotalZergCount()
 		), null);
 	}
 
