@@ -6,7 +6,7 @@ public class Planet {
 	private float coordX;
 	private float coordY;
 	private int diameter;
-	private int ownerID;
+	private int ownerID = -1;
 	private int armyCount;
 	
 	public Planet(String name, Float coordX, Float coordY, Integer diameter, int ownerID, int armyCount) {
@@ -71,7 +71,7 @@ public class Planet {
 	 * @return
 	 */
 	public boolean isEmpty() {
-		return this.armyCount == 0;
+		return this.ownerID < 0;
 	}
 
 	/**
