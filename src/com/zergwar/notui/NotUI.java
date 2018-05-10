@@ -38,6 +38,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	public static final int MENU_ID_ERROR        = 2;
 	public static final int MENU_ID_GAME         = 3;
 	public static final int MENU_ID_DISCONNECTED = 4;
+	public static final int MENU_ID_FINISHED     = 5;
 	
 	private int menuID;
 	
@@ -139,10 +140,41 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 			case MENU_ID_DISCONNECTED:
 				renderMenuDisconnected(g);
 				break;
+			case MENU_ID_FINISHED:
+				renderMenuFinished(g);
+				break;
 			default: break;
 		}
 	}
 	
+	/**
+	 * Dessine le menu de victoire/défaite
+	 * @param g
+	 */
+	private void renderMenuFinished(Graphics2D g) {
+		g.setColor(Color.white);
+		g.setFont(bold.deriveFont(36f));
+		g.setStroke(new BasicStroke(4));
+		
+		if(this.client.isWinner()) {
+			g.setColor(Color.green);
+			g.drawRect(65, 300, 860, 40);
+			g.drawString("VICTOIRE", 420, 333);
+		} else {
+			g.setColor(Color.red);
+			g.drawRect(65, 300, 860, 40);
+			g.drawString("DEFAITE... CUISANTE !", 330, 333);
+		}
+		
+		g.setStroke(new BasicStroke(1));
+		g.setFont(regular);
+		drawCenteredString(g, Color.white, regular, "NOMBRE DE ZERGS RESTANTS AU GAGNANT", getWidth() / 2, 400);
+		drawCenteredString(g, Color.green, bold, ""+this.client.getFinalZergCount(), getWidth() / 2, 425);
+	
+		drawCenteredString(g, Color.white, regular, "Merci d'avoir joué à ZergWar", getWidth() / 2, 480);
+		drawCenteredString(g, Color.white, regular, "Pour redémarrer une partie, relancer le serveur et le client.", getWidth() / 2, 500);
+	}
+
 	/**
 	 * Dessine le plateau et le jeu
 	 * @param g

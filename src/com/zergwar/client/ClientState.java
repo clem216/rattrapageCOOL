@@ -9,5 +9,6 @@ public enum ClientState
 	SYNCING_PLAYERS,
 	IN_LOBBY,
 	GAME_STARTING,
-	IN_GAME
+	IN_GAME,
+	IN_VICTORY_MENU
 }

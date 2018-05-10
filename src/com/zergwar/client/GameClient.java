@@ -20,6 +20,7 @@ import com.zergwar.network.packets.Packet12PlanetSelect;
 import com.zergwar.network.packets.Packet13Transfert;
 import com.zergwar.network.packets.Packet14TransfertFailure;
 import com.zergwar.network.packets.Packet15TransfertSuccess;
+import com.zergwar.network.packets.Packet16Victory;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
 import com.zergwar.network.packets.Packet3PlayerJoin;
@@ -58,6 +59,10 @@ public class GameClient {
 	private Planet targetPlanet;
 	private Planet hoveredPlanet;
 	private Planet selectedPlanet;
+
+	private RemotePlayer winner;
+
+	private int winningZergs;
 	
 	public GameClient(String serverIP, int port)
 	{
@@ -256,13 +261,24 @@ public class GameClient {
 				
 				break;
 			case "Packet15TransfertSuccess":
-				//Packet15TransfertSuccess tfsPacket = (Packet15TransfertSuccess)packet;
 				this.remainingTransfers--;
 				
 				this.selectedPlanet = null;
 				this.hoveredPlanet = null;
 				this.targetPlanet = null;
 				
+				break;
+			case "Packet16Victory":
+				
+				this.selectedPlanet = null;
+				this.hoveredPlanet = null;
+				this.targetPlanet = null;
+				
+				Packet16Victory vPacket = (Packet16Victory)packet;
+				this.winner = this.getRemotePlayerByID(vPacket.playerID);
+				this.winningZergs = vPacket.finalZergCount;
+				this.state = ClientState.IN_VICTORY_MENU;
+				this.ui.setMenu(NotUI.MENU_ID_FINISHED);
 				break;
 			default: break;
 		}
@@ -705,5 +721,22 @@ public class GameClient {
 	public boolean isMyTurn() {
 		if(this.currentPlayer == null) return false;
 		return this.currentPlayer.getPlayerID() == this.playerID;
+	}
+
+	/**
+	 * Renvoie si le client est le gagnant de la partie ou non
+	 * @return
+	 */
+	public boolean isWinner() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/**
+	 * Renvoie le nombre de zergs restant au perdant
+	 * @return
+	 */
+	public int getFinalZergCount() {
+		return this.winningZergs;
 	}
 }

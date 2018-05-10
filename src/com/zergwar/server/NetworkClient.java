@@ -21,6 +21,7 @@ public class NetworkClient extends Thread implements Runnable{
 	private String playerName;
 	private Color playerColor;
 	private boolean isReady;
+	private int zergCount;
 	
 	public static final int ST_WAIT_HANDSHAKE = 1;
 	public static final int ST_READ_DATALEN   = 2;
@@ -291,5 +292,21 @@ public class NetworkClient extends Thread implements Runnable{
 	 */
 	public String toString() {
 		return "(" + this.getPlayerName() + "::" + this.getPlayerId() +")";
+	}
+
+	/**
+	 * Sauvegarde la quantité de zergs controles, a titre d'info
+	 * @param totalOwnedZergs
+	 */
+	public void setTotalZergCount(int totalOwnedZergs) {
+		this.zergCount = totalOwnedZergs;
+	}
+	
+	/**
+	 * Renvoie le dernier compte de zergs possédés
+	 * @return
+	 */
+	public int getTotalZergCount() {
+		return this.zergCount;
 	}
 }

@@ -16,6 +16,7 @@ import com.zergwar.network.packets.Packet11NewTurn;
 import com.zergwar.network.packets.Packet13Transfert;
 import com.zergwar.network.packets.Packet14TransfertFailure;
 import com.zergwar.network.packets.Packet15TransfertSuccess;
+import com.zergwar.network.packets.Packet16Victory;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
 import com.zergwar.network.packets.Packet3PlayerJoin;
@@ -412,7 +413,7 @@ public class GameServer implements NetworkEventListener {
 		} else
 		{
 			dst.setOwner(this.currentPlayer.getPlayerId());
-			dst.setArmyCount(src.getArmyCount() + armiesToTransfer);
+			dst.setArmyCount(dst.getArmyCount() + armiesToTransfer);
 		}
 		
 		// Dans tous les cas, retrait sur la planète source
@@ -504,8 +505,30 @@ public class GameServer implements NetworkEventListener {
 	 * conditions de victoire, null sinon
 	 * @return
 	 */
-	private NetworkClient checkVictory() {
-		return null; // TODO check victory conditions
+	private NetworkClient checkVictory()
+	{
+		for(NetworkClient client : this.netAgent.getClients())
+		{
+			int totalOwnedPlanets = 0;
+			int totalOwnedZergs = 0;
+			
+			for(Planet p : this.galaxy.planets) {
+				if(p.getOwnerID() == client.getPlayerId()) {
+					totalOwnedPlanets++;
+					totalOwnedZergs += p.getArmyCount();
+				}
+			}
+			
+			// Enregistre le nombre de zergs contrôlés (pour ref)
+			client.setTotalZergCount(totalOwnedZergs);
+			
+			// si le nombre de planetes possédées vaut celui
+			// de la galaxie, alors victoire
+			if(totalOwnedPlanets == this.galaxy.planets.size())
+				return client;
+		}
+		
+		return null;
 	}
 
 	/**
@@ -532,9 +555,12 @@ public class GameServer implements NetworkEventListener {
 	 * La partie est gagnée
 	 * @param victoriousClient
 	 */
-	private void onGameFinished(NetworkClient victoriousClient) {
-		// TODO Auto-generated method stub
-		
+	private void onGameFinished(NetworkClient victoriousClient)
+	{
+		this.netAgent.broadcast(new Packet16Victory(
+			victoriousClient.getPlayerId(),
+			0 // TODO to be fixed
+		), null);
 	}
 
 	/**
@@ -542,7 +568,8 @@ public class GameServer implements NetworkEventListener {
 	 * pour une nouvelle partie
 	 */
 	private void resetGameServer() {
-		// TODO unsupported feature
+		this.initializeGameboard();
+		// TODO not supported yet
 	}
 
 	/**

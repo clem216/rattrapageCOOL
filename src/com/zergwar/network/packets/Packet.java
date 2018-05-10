@@ -24,6 +24,7 @@ public class Packet {
 	public static final int ID_PACKET13TRANSFERT        = 13;
 	public static final int ID_PACKET14TRANSFERTFAILURE = 14;
 	public static final int ID_PACKET15TRANSFERTSUCCESS = 15;
+	public static final int ID_PACKET16VICTORY          = 16;
 
 	/**
 	 * Structure du paquet :
@@ -192,6 +193,8 @@ public class Packet {
 				return Packet14TransfertFailure.fromRaw(rawData);
 			case ID_PACKET15TRANSFERTSUCCESS:
 				return Packet15TransfertSuccess.fromRaw(rawData);
+			case ID_PACKET16VICTORY:
+				return Packet16Victory.fromRaw(rawData);
 			default: return null;
 		}
 	}
