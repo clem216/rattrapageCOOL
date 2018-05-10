@@ -109,4 +109,28 @@ public class Galaxy {
 				emptyPlanets.add(p);
 		return emptyPlanets;
 	}
+
+	/**
+	 * Renvoie la route entre deux planètes,
+	 * null si la planète cible égale la planète
+	 * source ou si aucune route ne les relie
+	 * directement
+	 * @param sourcePlanet
+	 * @param destPlanet
+	 * @return
+	 */
+	public Route getRoute(String sourcePlanet, String destPlanet)
+	{
+		Planet s = getPlanetByName(sourcePlanet);
+		Planet d = getPlanetByName(destPlanet);
+		if(s == null || d == null) return null;
+		
+		for(Route r : routes) {
+			if((r.getSource().equals(s) && r.getDest().equals(d))
+			  || (r.getSource().equals(d) && r.getDest().equals(s)))
+			  return r;
+		}
+		
+		return null;
+	}
 }

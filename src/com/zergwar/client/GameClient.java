@@ -15,6 +15,11 @@ import com.zergwar.common.Route;
 import com.zergwar.network.packets.Packet;
 import com.zergwar.network.packets.Packet0Handshake;
 import com.zergwar.network.packets.Packet10PlanetaryUpdate;
+import com.zergwar.network.packets.Packet11NewTurn;
+import com.zergwar.network.packets.Packet12PlanetSelect;
+import com.zergwar.network.packets.Packet13Transfert;
+import com.zergwar.network.packets.Packet14TransfertFailure;
+import com.zergwar.network.packets.Packet15TransfertSuccess;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
 import com.zergwar.network.packets.Packet3PlayerJoin;
@@ -45,7 +50,14 @@ public class GameClient {
 	private long serverTimestamp;
 	private boolean isReady;
 	
+	private RemotePlayer currentPlayer;
+	private int remainingTransfers;
+	
 	private Timer onlineVerifyTimer;
+	
+	private Planet targetPlanet;
+	private Planet hoveredPlanet;
+	private Planet selectedPlanet;
 	
 	public GameClient(String serverIP, int port)
 	{
@@ -201,12 +213,36 @@ public class GameClient {
 			case "Packet10PlanetaryUpdate":
 				if(this.state == ClientState.GAME_STARTING)
 					this.state = ClientState.IN_GAME;
+				
 				Packet10PlanetaryUpdate uPacket = (Packet10PlanetaryUpdate)packet;
 				Planet p = galaxy.getPlanetByName(uPacket.planetName);
 				if(p != null) {
 					p.setOwner(uPacket.ownerID);
 					p.setArmyCount(uPacket.armyCount);
 				}
+				break;
+			case "Packet11NewTurn":
+				Packet11NewTurn tPacket = (Packet11NewTurn)packet;
+				this.currentPlayer = this.getRemotePlayerByID(tPacket.playerID);
+				this.remainingTransfers = tPacket.transferCount;
+				break;
+			case "Packet12PlanetSelect":
+				Packet12PlanetSelect mPacket = (Packet12PlanetSelect)packet;
+				System.out.println("Received update selection status for "+mPacket.planetName);
+				if(mPacket.selectionType == 1)
+					this.selectedPlanet = this.galaxy.getPlanetByName(mPacket.planetName);
+				else if(mPacket.selectionType == 2)
+					this.hoveredPlanet = this.galaxy.getPlanetByName(mPacket.planetName);
+				else if(mPacket.selectionType == 3)
+					this.targetPlanet = this.galaxy.getPlanetByName(mPacket.planetName);
+				break;
+			case "Packet14TransfertFailure":
+				Packet14TransfertFailure tffPacket = (Packet14TransfertFailure)packet;
+				this.status = tffPacket.failureReason;
+				break;
+			case "Packet15TransfertSuccess":
+				Packet15TransfertSuccess tfsPacket = (Packet15TransfertSuccess)packet;
+				this.remainingTransfers--;
 				break;
 			default: break;
 		}
@@ -496,5 +532,158 @@ public class GameClient {
 		this.send(
 			new Packet8ReadyNotReady(this.playerID, this.isReady)
 		);
+	}
+	
+	/**
+	 * Renvoie le joueur jouant actuellement.
+	 * NULL si aucun ou dans la phase regen
+	 * @return
+	 */
+	public RemotePlayer getCurrentPlayer() {
+		return this.currentPlayer;
+	}
+	
+	/**
+	 * Renvoie le nombre de transferts
+	 * du joueur actuellement en train
+	 * de jouer
+	 * @return
+	 */
+	public int getRemainingTransfers() {
+		return this.remainingTransfers;
+	}
+	
+	/**
+	 * Renvoie la planète située sous le curseur
+	 * de la souris, si il y a
+	 * @return
+	 */
+	public Planet getHoveredPlanet() {
+		return this.hoveredPlanet;
+	}
+	
+	/**
+	 * Renvoie la planète actuellement sélectionnée,
+	 * si il y a
+	 * @return
+	 */
+	public Planet getSelectedPlanet() {
+		return this.selectedPlanet;
+	}
+	
+	/**
+	 * Renvoie la planète cible
+	 * @return
+	 */
+	public Planet getTargetPlanet() {
+		return this.targetPlanet;
+	}
+
+	/**
+	 * Sélectionne la planète aux coordonées x,y
+	 * déselect si aucune
+	 * @param x
+	 * @param y
+	 */
+	public void setSelectedPlanet(int x, int y)
+	{
+		Planet p = findPlanetAtCoordinates(x, y);
+		
+		if(p != null && this.getCurrentPlayer() != null)
+			if(this.getCurrentPlayer().getPlayerID() == this.playerID)
+			{
+				if(this.selectedPlanet != null)
+				{
+					// Affichage de la planète cible aux autres
+					this.targetPlanet = p;
+					this.send(new Packet12PlanetSelect(
+						this.playerID,
+						p.getName(),
+						3
+					));
+					
+					// Envoi de l'ordre de transfert
+					// ordre décalé d'une seconde 1/2 pour laisser
+					// le temps aux autres de voir le déplacement
+					// To be fixed, pas très joli =)
+					new Timer().schedule(new TimerTask()
+					{
+						public void run() {
+							send(new Packet13Transfert(
+								playerID,
+								selectedPlanet.getName(),
+								p.getName()
+							));
+							
+							selectedPlanet = null;
+							targetPlanet = null;
+						}
+					}, 1500L);
+				} else {
+					this.selectedPlanet = p;
+					this.send(new Packet12PlanetSelect(
+						this.playerID,
+						p.getName(),
+						1
+					));
+				}
+			}
+	}
+
+	/**
+	 * Sélectionne la planète en surbrillance
+	 * si aucune, null
+	 * @param x
+	 * @param y
+	 */
+	public void setHoveredPlanet(int x, int y)
+	{
+		Planet p = findPlanetAtCoordinates(x, y);
+		this.hoveredPlanet = p;
+		
+		if(p != null && this.getCurrentPlayer() != null)
+			if(this.getCurrentPlayer().getPlayerID() == this.playerID)
+				this.send(new Packet12PlanetSelect(
+					this.playerID,
+					p.getName(),
+					2
+				));
+	}
+
+	/**
+	 * Trouve la planète aux coordonnées x, y
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private Planet findPlanetAtCoordinates(int x, int y)
+	{
+		for(Planet p : this.galaxy.planets) {
+			if(distance(p.getX() + 75, p.getY() + 100, x, y) < p.getDiameter() / 4)
+				return p;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Renvoie la distance entre deux points
+	 * @param f
+	 * @param g
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private double distance(double x1, double y1, double x2, double y2) {
+		return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+	}
+
+	/**
+	 * Renvoie si il s'agit de mon tour de jeu
+	 * @return
+	 */
+	public boolean isMyTurn() {
+		if(this.currentPlayer == null) return false;
+		return this.currentPlayer.getPlayerID() == this.playerID;
 	}
 }

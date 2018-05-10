@@ -1,8 +1,10 @@
 package com.zergwar.server;
 
 import java.awt.Color;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.zergwar.common.Galaxy;
 import com.zergwar.common.Planet;
@@ -10,6 +12,10 @@ import com.zergwar.common.Route;
 import com.zergwar.network.packets.Packet;
 import com.zergwar.network.packets.Packet0Handshake;
 import com.zergwar.network.packets.Packet10PlanetaryUpdate;
+import com.zergwar.network.packets.Packet11NewTurn;
+import com.zergwar.network.packets.Packet13Transfert;
+import com.zergwar.network.packets.Packet14TransfertFailure;
+import com.zergwar.network.packets.Packet15TransfertSuccess;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
 import com.zergwar.network.packets.Packet3PlayerJoin;
@@ -63,10 +69,14 @@ public class GameServer implements NetworkEventListener {
 	private boolean paused;
 	private Timer probeBeacon;
 	private Thread clientCleanThread;
+	private NetworkClient currentPlayer;
+	private int remainingTransfers;
+	private CopyOnWriteArrayList<NetworkClient> remainingInTurn;
 	
 	public GameServer() {
 		this.galaxy = new Galaxy();
 		this.probeBeacon = new Timer();
+		this.remainingInTurn = new CopyOnWriteArrayList<NetworkClient>();
 		this.netAgent = new NetworkAgent(SERVER_PORT);
 		this.netAgent.registerNetworkListener(this);
 		this.initCleanThread();
@@ -279,8 +289,247 @@ public class GameServer implements NetworkEventListener {
 				Packet8ReadyNotReady rPacket = (Packet8ReadyNotReady)packet;
 				onReadyStatusChanged(client, rPacket.readyState);
 				break;
+			case "Packet12PlanetSelect":
+				netAgent.broadcast(packet, client);
+				break;
+			case "Packet13Transfert":
+				resolveTransfert(client, (Packet13Transfert)packet);
+				break;
 			default: break;
 		}
+	}
+
+	/**
+	 * Résoud un ordre de transfert
+	 * 1. est-ce le bon joueur ?
+	 * 2. Route accessible ?
+	 * 3. Planète source appartient bien au joueur
+	 * 4. Résolution de bataille / capture
+	 * @param packet
+	 */
+	private void resolveTransfert(NetworkClient author, Packet13Transfert packet)
+	{
+		// Si la planète source est identique à la cible, abandon immédiat
+		if(packet.sourcePlanet.equals(packet.destPlanet)) {
+			author.sendPacket(new Packet14TransfertFailure(
+				packet.playerID,
+				packet.sourcePlanet,
+				packet.destPlanet,
+				"Transfert d'une planète à elle-même interdit !"
+			));
+		
+			return;
+		}
+		
+		// Si la planète source n'appartient pas au joueur du tour, fin
+		Planet src = galaxy.getPlanetByName(packet.sourcePlanet);
+		Planet dst = galaxy.getPlanetByName(packet.destPlanet);
+		if(src == null || dst == null) {
+			author.sendPacket(new Packet14TransfertFailure(
+				packet.playerID,
+				packet.sourcePlanet,
+				packet.destPlanet,
+				"Erreur : planète source/cible non trouvée, vérifier le serveur."
+			));
+			
+			return;
+		} else
+		
+		// Renvoie l'ID propriétaire
+		if(src.getOwnerID() != this.currentPlayer.getPlayerId())
+		{
+			author.sendPacket(new Packet14TransfertFailure(
+				packet.playerID,
+				packet.sourcePlanet,
+				packet.destPlanet,
+				"Vous ne pouvez pas attaquer depuis une planète que vous ne contrôlez pas"
+			));
+			
+			return;
+		}
+		
+		// On continue, sinon
+		if(author.getPlayerId() == this.currentPlayer.getPlayerId())
+		{
+			Route r = galaxy.getRoute(packet.sourcePlanet, packet.destPlanet);
+			if(r != null) {
+				resolveBattle(author, src, dst);
+			} else {
+				author.sendPacket(new Packet14TransfertFailure(
+					packet.playerID,
+					packet.sourcePlanet,
+				packet.destPlanet,
+					"Aucune route ne permet de rejoindre "+packet.destPlanet+" depuis "+packet.sourcePlanet
+				));
+			}
+		} else {
+			author.sendPacket(new Packet14TransfertFailure(
+				packet.playerID,
+				packet.sourcePlanet,
+				packet.destPlanet,
+				"Unauthorized Operation"
+			));
+		}
+	}
+
+	/**
+	 * Résoud une bataille entre deux planètes valides
+	 * @param sourcePlanet
+	 * @param destPlanet
+	 */
+	private void resolveBattle(NetworkClient author, Planet src, Planet dst)
+	{
+		Logger.log("Résolution de la bataille menée par "+author+" de "+src+" à "+dst);
+		
+		// Si une seule armée ou aucun restent, le transfert est impossible
+		if(src.getArmyCount() < 2)
+		{
+			author.sendPacket(new Packet14TransfertFailure(
+				author.getPlayerId(),
+				src.getName(),
+				dst.getName(),
+				"Une seule armée est en garnison. Transfert impossible"
+			));
+			
+			return;
+		}
+		
+		int armiesToTransfer = (int)Math.round(src.getArmyCount() / 2);
+		int armiesRemaining = src.getArmyCount() - armiesToTransfer;
+	
+		// Suivant le propriétaire, combat ou pas combat
+		if(dst.getOwnerID() != src.getOwnerID())
+		{
+			int battleResult = dst.getArmyCount() - armiesToTransfer;
+			if(battleResult >= 0)
+				dst.setArmyCount(battleResult);
+			else
+			{
+				// Changement de proprio
+				dst.setArmyCount(-battleResult);
+				dst.setOwner(this.currentPlayer.getPlayerId());
+			}
+		} else
+		{
+			dst.setOwner(this.currentPlayer.getPlayerId());
+			dst.setArmyCount(src.getArmyCount() + armiesToTransfer);
+		}
+		
+		// Dans tous les cas, retrait sur la planète source
+		src.setArmyCount(armiesRemaining);
+		
+		// notification du transfert réussi
+		netAgent.broadcast(new Packet15TransfertSuccess(), null);
+		
+		// ... et synchro de la source et de la dest
+		netAgent.broadcast(new Packet10PlanetaryUpdate(
+			src.getName(),
+			src.getOwnerID(),
+			src.getArmyCount()
+		), null);
+		
+		netAgent.broadcast(new Packet10PlanetaryUpdate(
+			dst.getName(),
+			dst.getOwnerID(),
+			dst.getArmyCount()
+		), null);
+		
+		// Si aucun ticket de mouvement dispo, joueur suivant
+		this.remainingTransfers--;
+		if(this.remainingTransfers == 0)
+			nextPlayerTurn();
+	}
+
+	/**
+	 * Lance le tour du joueur suivant
+	 */
+	private void nextPlayerTurn()
+	{
+		if(this.remainingInTurn.size() > 0)
+		{
+			// Prochain joueur
+			this.currentPlayer = this.remainingInTurn.remove(0);
+			Logger.log("C'est à "+this.currentPlayer+" de jouer !");
+			
+			// Repioche des transferts
+			this.setRemainingTransfers(getRandomTransferCount());
+			
+			// Synchro du changement de tour
+			this.netAgent.broadcast(new Packet11NewTurn(
+				this.currentPlayer.getPlayerId(),
+				getRemainingTransfers()
+			), null);
+		} else
+			resolveEndOfTurn();
+	}
+
+	/**
+	 * Exécute la regen des zergs sur l'ensemble des planètes
+	 */
+	private void resolveEndOfTurn()
+	{
+		/**
+		 * Victoire ?
+		 */
+		NetworkClient victoriousClient = checkVictory();
+		if(victoriousClient != null) {
+			onGameFinished(victoriousClient);
+			return;
+		}
+		
+		/**
+		 * Résoud la regen
+		 */
+		resolveRegen();
+		
+		/**
+		 * Relance les tours de joueurs
+		 */
+		this.remainingInTurn.clear();
+		
+		for(NetworkClient cli : this.netAgent.getClients())
+			this.remainingInTurn.add(cli);
+		
+		// Cas exceptionnel ou tout le monde a déco, interrompt la boucle
+		if(this.remainingInTurn.size() == 0) {
+			resetGameServer();
+			return;
+		}
+		
+		nextPlayerTurn();
+	}
+
+	/**
+	 * Renvoie l'éventuel client remplissant les
+	 * conditions de victoire, null sinon
+	 * @return
+	 */
+	private NetworkClient checkVictory() {
+		return null; // TODO check victory conditions
+	}
+
+	/**
+	 * résoud la régénération sur les planètes
+	 */
+	private void resolveRegen() {
+		// TODO add regen resolve
+	}
+
+	/**
+	 * La partie est gagnée
+	 * @param victoriousClient
+	 */
+	private void onGameFinished(NetworkClient victoriousClient) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * Réinitialise le serveur de jeu
+	 * pour une nouvelle partie
+	 */
+	private void resetGameServer() {
+		// TODO unsupported feature
 	}
 
 	/**
@@ -345,6 +594,65 @@ public class GameServer implements NetworkEventListener {
 				p.getArmyCount()
 			), null);
 		}
+		
+		/**
+		 * Les planètes de départ sont désormais attribuées
+		 * C'est au joueur inscrit en premier de commencer 
+		 */
+		
+		// recharge la liste des clients restant à jouer
+		// Structure en file permettant la gestion facile
+		// de la déconnexion intempestive sans interruption
+		for(NetworkClient cli : this.netAgent.getClients())
+			this.remainingInTurn.add(cli);
+		
+		NetworkClient firstPlayer = this.remainingInTurn.remove(0); // dépile le premier
+		if(firstPlayer != null)
+		{
+			Logger.log(firstPlayer+" joue en premier !");
+			
+			this.setCurrentPlayer(firstPlayer);
+			this.setRemainingTransfers(getRandomTransferCount());
+			
+			this.netAgent.broadcast(new Packet11NewTurn(
+				firstPlayer.getPlayerId(),
+				getRemainingTransfers()
+			), null);
+		}
+	}
+
+	/**
+	 * Définit le nombre de transferts restants
+	 * @param tc
+	 */
+	private void setRemainingTransfers(int tc) {
+		this.remainingTransfers = tc;
+	}
+
+	/**
+	 * Renvoie le nombre de transferts restants
+	 * @return
+	 */
+	private int getRemainingTransfers() {
+		return this.remainingTransfers;
+	}
+
+	/**
+	 * Définit le joueur dont c'est actuellement le tour
+	 * @param firstPlayer
+	 */
+	private void setCurrentPlayer(NetworkClient player) {
+		this.currentPlayer = player;
+	}
+
+	/**
+	 * Renvoie un nombre de transferts au hasard
+	 * parmi les possibilitées de la config
+	 * @return
+	 */
+	private int getRandomTransferCount() {
+		Random r = new Random();
+		return Configuration.NOMBRE_TRANSFERTS[r.nextInt(Configuration.NOMBRE_TRANSFERTS.length)];
 	}
 
 	/**
@@ -357,7 +665,7 @@ public class GameServer implements NetworkEventListener {
 		for(NetworkClient client : this.netAgent.getClients())
 			if(client.getReady())
 				rdyCount++;
-		return (rdyCount>1) && rdyCount == this.netAgent.getClients().size();
+		return (rdyCount>0) && rdyCount == this.netAgent.getClients().size(); // TODO change to 1
 	}
 
 	/**

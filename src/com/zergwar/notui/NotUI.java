@@ -1,5 +1,6 @@
 package com.zergwar.notui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -8,6 +9,9 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,7 +25,7 @@ import com.zergwar.client.RemotePlayer;
 import com.zergwar.common.Planet;
 import com.zergwar.common.Route;
 
-public class NotUI extends JFrame implements KeyListener {
+public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMotionListener {
 
 	// GENERIC
 	private static final long serialVersionUID = 1L;
@@ -59,6 +63,8 @@ public class NotUI extends JFrame implements KeyListener {
 		
 		// Enregistre les listeners
 		this.addKeyListener(this);
+		this.addMouseListener(this);
+		this.addMouseMotionListener(this);
 		
 		// Instancie une bufferstrategy
 		this.createBufferStrategy(2);
@@ -185,6 +191,88 @@ public class NotUI extends JFrame implements KeyListener {
 				);
 				drawCenteredString(g, this.client.getRemotePlayerByID(p.getOwnerID()).getPlayerColor(), regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
 			}
+		
+			// Si hovered
+			if(this.client.getState() == ClientState.IN_GAME)
+			if(p.equals(this.client.getHoveredPlanet())) {
+				g.setColor(Color.orange);
+				g.drawArc(
+					(int)(p.getX() + 75 - p.getDiameter() / 8 - 10),
+					(int)(p.getY() + 100 - p.getDiameter() / 8 - 10),
+					p.getDiameter() / 4 + 20,
+					p.getDiameter() / 4 + 20,
+					0,
+					360
+				);
+			}
+			
+
+			// si sélectionnée
+			if(p.equals(this.client.getSelectedPlanet())) {
+				g.setStroke(new BasicStroke(2));
+				g.setColor(Color.red);
+				g.drawArc(
+					(int)(p.getX() + 75 - p.getDiameter() / 8 - 10),
+					(int)(p.getY() + 100 - p.getDiameter() / 8 - 10),
+					p.getDiameter() / 4 + 20,
+					p.getDiameter() / 4 + 20,
+					0,
+					360
+				);
+				g.setStroke(new BasicStroke(1));
+			}
+			
+			// Si target
+			if(p.equals(this.client.getTargetPlanet())) {
+				g.setStroke(new BasicStroke(2));
+				g.setColor(Color.red);
+				g.drawArc(
+					(int)(p.getX() + 75 - p.getDiameter() / 8 - 10),
+					(int)(p.getY() + 100 - p.getDiameter() / 8 - 10),
+					p.getDiameter() / 4 + 20,
+					p.getDiameter() / 4 + 20,
+					0,
+					360
+				);
+				g.drawLine(
+					(int)(p.getX() + 75),
+					(int)(p.getY() + 100) - p.getDiameter() / 2,
+					(int)(p.getX() + 75),
+					(int)(p.getY() + 100) + p.getDiameter() / 2
+				);
+				g.drawLine(
+					(int)(p.getX() + 75) - p.getDiameter() / 2,
+					(int)(p.getY() + 100),
+					(int)(p.getX() + 75) + p.getDiameter() / 2,
+					(int)(p.getY() + 100)
+				);
+				g.setStroke(new BasicStroke(1));
+			}
+			
+			// Si une planète est sélectionnée ET une est hovered
+			if(this.client.getSelectedPlanet() != null && this.client.getHoveredPlanet() != null) {
+				g.setColor(Color.white);
+				g.drawLine(
+					(int)this.client.getSelectedPlanet().getX() + 75,
+					(int)this.client.getSelectedPlanet().getY() + 100,
+					(int)this.client.getHoveredPlanet().getX() + 75,
+					(int)this.client.getHoveredPlanet().getY() + 100
+				);
+			}
+			
+
+			// Si une planète est sélectionnée ET une autre est target
+			if(this.client.getSelectedPlanet() != null && this.client.getTargetPlanet() != null) {
+				g.setStroke(new BasicStroke(3));
+				g.setColor(Color.red);
+				g.drawLine(
+					(int)this.client.getSelectedPlanet().getX() + 75,
+					(int)this.client.getSelectedPlanet().getY() + 100,
+					(int)this.client.getTargetPlanet().getX() + 75,
+					(int)this.client.getTargetPlanet().getY() + 100
+				);
+				g.setStroke(new BasicStroke(1));
+			}
 			
 			drawCenteredString(g, Color.WHITE, regular, p.getName(), (int)p.getX() + 75, (int)p.getY() + 100+ p.getDiameter() / 4 + 20);
 		}
@@ -223,6 +311,34 @@ public class NotUI extends JFrame implements KeyListener {
 			g.drawRect(120, 315, getWidth() - 240, 3);
 			g.setFont(regular.deriveFont(38f));
 			g.drawString("Démarrage de la partie...", 280, 300);
+		}
+		
+		// Affiche le tour en cours
+		if(this.client.getCurrentPlayer() != null)
+		{
+			drawCenteredString(g, Color.white, regular, "TOUR DE", 840, 680);
+			drawCenteredString(g, this.client.getCurrentPlayer().getPlayerColor(),
+					bold, this.client.getCurrentPlayer().getName(), 840, 700);
+			drawCenteredString(g, Color.white, regular, "TRANSFERTS RESTANTS", 840, 730);
+			drawCenteredString(g, Color.green, bold, ""+this.client.getRemainingTransfers(), 840, 750);
+			
+			// Indication de tour
+			if(this.client.getCurrentPlayer().getPlayerID() == this.client.getPlayerId())
+			{
+				g.setColor(Color.white);
+				g.setFont(bold);
+				g.drawString("C'est votre tour !", 65, 680);
+				g.setFont(regular);
+				g.drawString("Veuillez déplacer vos unités", 65, 700);
+				g.drawString("Cliquez sur la planète source, puis cible pour déplacer vos armées", 65, 720);
+				g.drawString("Attention : Cette action n'est PAS réversible !", 65, 740);
+			} else
+			{
+				g.setColor(Color.white);
+				g.setFont(regular);
+				g.drawString("Un autre joueur est en train de jouer", 65, 680);
+				g.drawString("Le déplacement de ses unités est en cours", 65, 700);
+			}
 		}
 	}
 
@@ -278,6 +394,13 @@ public class NotUI extends JFrame implements KeyListener {
 		{			
 			g.setColor(Color.white);
 			g.drawRect(x + position * 130, y, 120, 30);
+			
+			// Dessine une barre sous le joueur qui joue
+			// actuellement
+			if(p.equals(this.client.getCurrentPlayer())) {
+				g.fillRect(x + position * 130, y + 35, 120, 5);
+			}
+			
 			g.setColor(p.getPlayerColor());
 			g.fillRect(x + position * 130 + 5, y + 5, 30, 20);
 			g.setColor(Color.white);
@@ -404,10 +527,57 @@ public class NotUI extends JFrame implements KeyListener {
 			default: break;
 		}
 	}
+	
+	/**
+	 * La souris a bougé
+	 * @param x
+	 * @param y
+	 */
+	private void onMouseMoved(int x, int y) {
+		if(this.client.getState() == ClientState.IN_GAME && this.client.isMyTurn())
+		this.client.setHoveredPlanet(x, y);
+	}
 
 	@Override
-	public void keyTyped(KeyEvent kev)
-	{
-	
+	public void keyTyped(KeyEvent kev) {}
+
+	@Override
+	public void mouseDragged(MouseEvent mev) {
+		onMouseMoved(mev.getX(), mev.getY());
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent mev) {
+		onMouseMoved(mev.getX(), mev.getY());
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent mev) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent mev) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent mev) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent mev) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent mev) {
+		if(this.client.getState() == ClientState.IN_GAME && this.client.isMyTurn())
+		this.client.setSelectedPlanet(mev.getX(), mev.getY());
 	}
 }

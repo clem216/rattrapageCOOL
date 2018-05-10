@@ -8,17 +8,22 @@ import com.zergwar.util.math.ByteUtils;
 public class Packet {
 
 	// constants
-	public static final int ID_PACKET0HANDSHAKE        = 0;
-	public static final int ID_PACKET1PLANET           = 1;
-	public static final int ID_PACKET2ROUTE            = 2;
-	public static final int ID_PACKET3PLAYERJOIN       = 3;
-	public static final int ID_PACKET4PLAYERLEAVE      = 4;
-	public static final int ID_PACKET5PLAYERINFO       = 5;
-	public static final int ID_PACKET6PROBEPING        = 6;
-	public static final int ID_PACKET7PROBEPONG        = 7;
-	public static final int ID_PACKET8READYNOTREADY    = 8;
-	public static final int ID_PACKET9GAMESTART        = 9;
-	public static final int ID_PACKET10PLANETARYUPDATE = 10;
+	public static final int ID_PACKET0HANDSHAKE         = 0;
+	public static final int ID_PACKET1PLANET            = 1;
+	public static final int ID_PACKET2ROUTE             = 2;
+	public static final int ID_PACKET3PLAYERJOIN        = 3;
+	public static final int ID_PACKET4PLAYERLEAVE       = 4;
+	public static final int ID_PACKET5PLAYERINFO        = 5;
+	public static final int ID_PACKET6PROBEPING         = 6;
+	public static final int ID_PACKET7PROBEPONG         = 7;
+	public static final int ID_PACKET8READYNOTREADY     = 8;
+	public static final int ID_PACKET9GAMESTART         = 9;
+	public static final int ID_PACKET10PLANETARYUPDATE  = 10;
+	public static final int ID_PACKET11NEWTURN          = 11;
+	public static final int ID_PACKET12PLANETSELECT     = 12;
+	public static final int ID_PACKET13TRANSFERT        = 13;
+	public static final int ID_PACKET14TRANSFERTFAILURE = 14;
+	public static final int ID_PACKET15TRANSFERTSUCCESS = 15;
 
 	/**
 	 * Structure du paquet :
@@ -177,6 +182,16 @@ public class Packet {
 				return Packet9GameStart.fromRaw(rawData);
 			case ID_PACKET10PLANETARYUPDATE:
 				return Packet10PlanetaryUpdate.fromRaw(rawData);
+			case ID_PACKET11NEWTURN:
+				return Packet11NewTurn.fromRaw(rawData);
+			case ID_PACKET12PLANETSELECT:
+				return Packet12PlanetSelect.fromRaw(rawData);
+			case ID_PACKET13TRANSFERT:
+				return Packet13Transfert.fromRaw(rawData);
+			case ID_PACKET14TRANSFERTFAILURE:
+				return Packet14TransfertFailure.fromRaw(rawData);
+			case ID_PACKET15TRANSFERTSUCCESS:
+				return Packet15TransfertSuccess.fromRaw(rawData);
 			default: return null;
 		}
 	}

@@ -284,4 +284,12 @@ public class NetworkClient extends Thread implements Runnable{
 	public void setReady(boolean readyState) {
 		this.isReady = readyState;
 	}
+	
+	/**
+	 * Renvoie une représentation symbolique
+	 * de ce joueur
+	 */
+	public String toString() {
+		return "(" + this.getPlayerName() + "::" + this.getPlayerId() +")";
+	}
 }
