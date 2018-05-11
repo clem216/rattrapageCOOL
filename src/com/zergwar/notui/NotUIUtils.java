@@ -23,7 +23,8 @@ public class NotUIUtils {
 	
 	private static HashMap<String, Image> imageCache;
 	private static Map<String, Font> cache = new ConcurrentHashMap<String, Font>();
-	  
+	private static HashMap<Integer, BufferedImage> maskLibrary;
+	
 	public static Font getFont(String name) {
 	    Font font = null;
 	    if (cache != null) {
@@ -113,13 +114,8 @@ public class NotUIUtils {
 		// Dessine l'atmosphère / couleur de joueur
 		if(planetColor != null)
 		{
-			BufferedImage mask = new BufferedImage(width + 16, width + 16, BufferedImage.TYPE_INT_ARGB);
-			Graphics2D mg = mask.createGraphics();
-			mg.drawImage(NotUIUtils.loadTex("batmos.png"), 0, 0, width + 16, width + 16, null);
-			mg.dispose();
+			BufferedImage mask = getMaskedAtmos(planetColor);
 			
-			changeColor(mask, 0, 0, 0, planetColor.getRed(), planetColor.getGreen(), planetColor.getBlue());
-		
 			g.drawImage(mask,
 				(int)(p.getX() + 75 - width / 2) - 8,
 				(int)(p.getY() + 100 - width / 2) - 8,
@@ -145,6 +141,34 @@ public class NotUIUtils {
 		);
 	}
 	
+	/**
+	 * Calcule le masque atmosphérique suivant
+	 * la couleur des joueurs
+	 * @param colorIndex
+	 * @return
+	 */
+	private static BufferedImage getMaskedAtmos(Color planetColor)
+	{
+		int colorIndex = planetColor.getRGB();
+		
+		// Si la librairie est nulle, init
+		if(maskLibrary == null) {
+			maskLibrary = new HashMap<Integer, BufferedImage>();
+		}
+		
+		if(maskLibrary.containsKey(colorIndex))
+			return maskLibrary.get(colorIndex);
+		else {
+			BufferedImage mask = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D mg = mask.createGraphics();
+			mg.drawImage(NotUIUtils.loadTex("batmos.png"), 0, 0, 128, 128, null);
+			mg.dispose();
+			changeColor(mask, 0, 0, 0, planetColor.getRed(), planetColor.getGreen(), planetColor.getBlue());
+			maskLibrary.put(colorIndex, mask);
+			return mask;
+		}
+	}
+
 	/**
 	 * Changes all pixels of an old color into a new color, preserving the
 	 * alpha channel.

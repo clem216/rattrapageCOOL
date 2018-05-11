@@ -45,6 +45,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	
 	private int menuID;
 	private float tick;
+	private CopyOnWriteArrayList<NotUIParticle> particles;
 	
 	// Graphics-related
 	private BufferStrategy bufferStrategy;
@@ -59,7 +60,12 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	/**
 	 * Initialise l'UI
 	 */
-	public void initUI() {
+	public void initUI()
+	{	
+		// Init des particules
+		this.particles = new CopyOnWriteArrayList<NotUIParticle>();
+		
+		// Paramètres de fenêtre
 		this.setSize(1000, 800);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);
@@ -106,11 +112,19 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 						g.dispose();
 						bufferStrategy.show();
 						
-						long remainingToSleep = 40 - (System.currentTimeMillis() - lastrenderTime);
+						long remainingToSleep = 16 - (System.currentTimeMillis() - lastrenderTime);
 						if(remainingToSleep < 0 ) remainingToSleep = 0;
 						lastrenderTime = System.currentTimeMillis();
 						
 						tick += .2f;
+						
+						// Update des particules
+						for(NotUIParticle p : particles) {
+							if(p.alive())
+								p.tick();
+							else
+								particles.remove(p);
+						}
 						
 						Thread.sleep(remainingToSleep);
 					} catch (Exception e) {}
@@ -154,8 +168,23 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 				break;
 			default: break;
 		}
+		
+		// Rendu des particules
+		for(NotUIParticle p : this.particles)
+			p.renderParticle(g);
 	}
 	
+	/**
+	 * Ajoute une particule à la scène
+	 * @param notUIParticleRegen
+	 */
+	public void spawnParticle(NotUIParticleRegen particle)
+	{
+		// Particles dispo uniquement en enhanced mode
+		if(this.enhancedMode)
+			this.particles.add(particle);
+	}
+
 	/**
 	 * Dessine le menu de victoire/défaite
 	 * @param g
@@ -365,12 +394,20 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 		if(this.client.getPlayerName() != null && this.client.getPlayerColor() != null)
 			drawPlayer(g, this.client.getPlayerName(), this.client.getPlayerColor(), 65, 40);
 		
-		// affiche le statutg
+		// affiche le statut
 		g.setColor(Color.WHITE);
-		g.drawString(this.client.getCurrentStatus(), 75, getHeight() - 25);
+		g.drawString(this.client.getCurrentStatus(), 75, getHeight() - 27);
 		
 		// affiche l'heure de jeu
 		drawTimestamp(g, this.client.getServerTimestamp());
+		
+		// Affiche la version
+		if(enhancedMode) {
+			g.setColor(Color.WHITE);
+			g.setFont(regular.deriveFont(11f));
+			g.drawString("Alpha 0.5", 640, 83);
+			g.setFont(regular);
+		}
 		
 		// Si en lobby, affiche les instructions du lobby
 		if(this.client.getState() == ClientState.IN_LOBBY) {
@@ -432,11 +469,21 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 		if(time > 0) {
 			SimpleDateFormat formatter = new SimpleDateFormat("HH:MM:ss");
 			g.setColor(Color.white);
-			g.drawString(
-				"Server time " + formatter.format(new Date(time)),
-				748,
-				80
-			);
+			
+			if(enhancedMode) {
+				g.setColor(Color.green);
+				g.drawString(
+					"Server Time " + formatter.format(new Date(time)),
+					728,
+					80
+				);
+			}
+			else
+				g.drawString(
+					"Server time " + formatter.format(new Date(time)),
+					748,
+					80
+				);
 		}
 	}
 

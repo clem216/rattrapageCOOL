@@ -29,6 +29,7 @@ import com.zergwar.network.packets.Packet6ProbePing;
 import com.zergwar.network.packets.Packet7ProbePong;
 import com.zergwar.network.packets.Packet8ReadyNotReady;
 import com.zergwar.notui.NotUI;
+import com.zergwar.notui.NotUIParticleRegen;
 import com.zergwar.server.NetworkCode;
 import com.zergwar.util.log.Logger;
 import com.zergwar.util.math.ByteUtils;
@@ -207,7 +208,7 @@ public class GameClient {
 			// Traitement du paquet "Nouveau joueur dans la partie"
 			case "Packet3PlayerJoin":
 				Packet3PlayerJoin jPacket = (Packet3PlayerJoin)packet;
-				this.status = "[ Player " + jPacket.playerName + " joined the game ]";
+				this.status = "Le joueur " + jPacket.playerName + " a rejoint la partie !";
 				ui.repaint();
 				this.players.add(new RemotePlayer(
 					jPacket.playerName,
@@ -222,7 +223,7 @@ public class GameClient {
 				RemotePlayer ply = getRemotePlayerByID(lPacket.playerID);
 				if(ply != null) {
 					Logger.log("Player "+ply+"left the game");
-					this.status = "[ Player " + ply.getName() + " left the game ]";
+					this.status = "Le joueur " + ply.getName() + " s'est déconnecté";
 					this.players.remove(ply);
 				}
 				break;
@@ -233,7 +234,7 @@ public class GameClient {
 				this.playerID = iPacket.playerID;
 				this.playerColor = new Color(iPacket.playerColor);
 				this.playerName = iPacket.playerName;
-				this.status = "[ Receiving your initial data from server ]";
+				this.status = "[ Réception des données initiales de jeu ]";
 				ui.repaint();
 				break;
 				
@@ -269,6 +270,15 @@ public class GameClient {
 				Planet p = galaxy.getPlanetByName(uPacket.planetName);
 				if(p != null) {
 					p.setOwner(uPacket.ownerID);
+					
+					// Anime les ajouts / retraits de troupes
+					int delta = uPacket.armyCount - p.getArmyCount();
+					this.ui.spawnParticle(new NotUIParticleRegen(
+						delta,
+						p.getX() + 75,
+						p.getY() + 100
+					));
+					
 					p.setArmyCount(uPacket.armyCount);
 				}
 				break;
@@ -345,7 +355,7 @@ public class GameClient {
 					this.state = ClientState.IN_VICTORY_MENU;
 					this.ui.setMenu(NotUI.MENU_ID_FINISHED);
 				} else {
-					this.status = "[ Le joueur "+ this.getRemotePlayerByID(vPacket.playerID) + " a été éliminé !]";
+					this.status = "Le joueur "+ this.getRemotePlayerByID(vPacket.playerID) + " a été éliminé !";
 				}
 				
 				break;
