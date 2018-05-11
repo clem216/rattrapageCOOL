@@ -34,10 +34,31 @@ public class Configuration {
 			"Draconis 476.0 407.0 100"
 		},
 		
-		// MAP 1 : PAUL'S CUSTOM 1
+		// MAP 1 : LARGE 1
 		{
-			"Jeanphi 809.0 28.0 80",
-			"Glière 786.0 187.0 150"
+			"Aiur 108.0 59.0 100",
+			"Calliope 37.0 130.0 60",
+			"Eugenia 118.0 180.0 80",
+			"Illa 234.0 100.0 50",
+			"Cyclades 250.0 200.0 40",
+			"Norion 395.0 257.0 70",
+			"Lapalak 170.0 303.0 50",
+			"Char 92.0 340.0 100",
+			"Ixos 213.0 365.0 80",
+			"Praxis 144.0 422.0 70",
+			"Ulnar 420.0 365.0 40",
+			"ChauSara 528.0 325.0 60",
+			"MarSara 536.0 395.0 50",
+			"NeoAntioch 616.0 402.0 90",
+			"Hyperion 467.0 428.0 60",
+			"Atraxis 511.0 196.0 100",
+			"Alinor 633.0 264.0 50",
+			"Zerus 519.0 97.0 80",
+			"SolIV 591.0 82.0 90",
+			"Kerbin 655.0 145.0 80",
+			"Ulysse 750.0 181.0 40",
+			"Rubeus 720.0 396.0 130",
+			"Ganymède 379.0 39.0 110"
 		}
 	};
 	
@@ -76,9 +97,52 @@ public class Configuration {
 			{ "Gliese", "CoRoT" }
 		},
 		
-		// MAP 1 : PAUL CUSTOM
+		// MAP 1 : LARGE CUSTOM
 		{
-			{ "Glière", "Jeanphi" }
+			{ "ChauSara", "MarSara" },
+			{ "ChauSara", "NeoAntioch" },
+			{ "Ulnar", "Norion" },
+			{ "Cyclades", "Norion" },
+			{ "MarSara", "NeoAntioch" },
+			{ "Rubeus", "NeoAntioch" },
+			{ "Ulnar", "Hyperion" },
+			{ "Rubeus", "ChauSara" },
+			{ "Ulnar", "MarSara" },
+			{ "Norion", "Atraxis" },
+			{ "Norion", "Alinor" },
+			{ "Norion", "Ixos" },
+			{ "Ixos", "Ulnar" },
+			{ "Ixos", "Praxis" },
+			{ "Praxis", "Lapalak" },
+			{ "Lapalak", "Char" },
+			{ "Char", "Eugenia" },
+			{ "Eugenia", "Calliope" },
+			{ "Eugenia", "Aiur" },
+			{ "Eugenia", "Illa" },
+			{ "Illa", "Aiur" },
+			{ "Cyclades", "Illa" },
+			{ "Zerus", "SolIV" },
+			{ "Zerus", "Atraxis" },
+			{ "Zerus", "Alinor" },
+			{ "Char", "Praxis" },
+			{ "Calliope", "Aiur" },
+			{ "Lapalak", "Eugenia" },
+			{ "Lapalak", "Ixos" },
+			{ "Ixos", "Hyperion" },
+			{ "Hyperion", "MarSara" },
+			{ "ChauSara", "Alinor" },
+			{ "Atraxis", "Alinor" },
+			{ "Kerbin", "Alinor" },
+			{ "Kerbin", "SolIV" },
+			{ "Kerbin", "Ulysse" },
+			{ "Rubeus", "Ulysse" },
+			{ "Zerus", "Illa" },
+			{ "Rubeus", "Alinor" },
+			{ "Lapalak", "Cyclades" },
+			{ "Norion", "Illa" },
+			{ "Ganymède", "Illa" },
+			{ "Ganymède", "Zerus" },
+			{ "Alinor", "Ulysse" },
 		}
 	};
 	

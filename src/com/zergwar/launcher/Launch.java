@@ -62,7 +62,7 @@ public class Launch {
 	 */
 	public void startServer() {
 		Logger.log("Démarrage du serveur...");
-		String mapIndex = JOptionPane.showInputDialog("Saisir l'ID de map souhaité :\n[0] Map COOL\n[1] Custom PAUL 1", "0");
+		String mapIndex = JOptionPane.showInputDialog("Saisir l'ID de map souhaité :\n[0] Map COOL\n[1] Custom Large 1", "0");
 		
 		int mapID = -1;
 		
