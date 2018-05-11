@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -19,6 +20,7 @@ import com.zergwar.network.packets.Packet11NewTurn;
 import com.zergwar.network.packets.Packet12PlanetSelect;
 import com.zergwar.network.packets.Packet13Transfert;
 import com.zergwar.network.packets.Packet14TransfertFailure;
+import com.zergwar.network.packets.Packet15TransfertSuccess;
 import com.zergwar.network.packets.Packet16Victory;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
@@ -29,7 +31,10 @@ import com.zergwar.network.packets.Packet6ProbePing;
 import com.zergwar.network.packets.Packet7ProbePong;
 import com.zergwar.network.packets.Packet8ReadyNotReady;
 import com.zergwar.notui.NotUI;
+import com.zergwar.notui.NotUIParticleBrood;
+import com.zergwar.notui.NotUIParticleExplode;
 import com.zergwar.notui.NotUIParticleRegen;
+import com.zergwar.notui.NotUIParticleShield;
 import com.zergwar.server.NetworkCode;
 import com.zergwar.util.log.Logger;
 import com.zergwar.util.math.ByteUtils;
@@ -273,11 +278,14 @@ public class GameClient {
 					
 					// Anime les ajouts / retraits de troupes
 					int delta = uPacket.armyCount - p.getArmyCount();
-					this.ui.spawnParticle(new NotUIParticleRegen(
-						delta,
-						p.getX() + 75,
-						p.getY() + 100
-					));
+					
+					// Si aucun changement, alors aucune particule
+					if(delta != 0)
+						this.ui.spawnParticle(new NotUIParticleRegen(
+							delta,
+							p.getX() + 75,
+							p.getY() + 100
+						));
 					
 					p.setArmyCount(uPacket.armyCount);
 				}
@@ -331,9 +339,60 @@ public class GameClient {
 			case "Packet15TransfertSuccess":
 				this.remainingTransfers--;
 				
+				Packet15TransfertSuccess tsPacket = (Packet15TransfertSuccess)packet;
+
 				this.selectedPlanet = null;
 				this.hoveredPlanet = null;
 				this.targetPlanet = null;
+				
+				Planet src = galaxy.getPlanetByName(tsPacket.sourcePlanet);
+				Planet dst = galaxy.getPlanetByName(tsPacket.destPlanet);
+				if(src == null || dst == null) return;
+				
+				Random r = new Random();
+				
+				// Dans tous les cas, animation de transfert
+				for(int i=0; i < 15 + r.nextInt(15); i++)
+				{
+					double angle = r.nextDouble() * Math.PI * 2;
+					double distance = r.nextDouble() * dst.getDiameter() / 4;
+					
+					this.ui.spawnParticle(new NotUIParticleBrood(
+						(int)src.getX() + 75 + (int)(Math.cos(angle) * distance),
+						(int)src.getY() + 100 + (int)(Math.sin(angle) * distance) ,
+						(int)dst.getX() + 75 + (int)(Math.cos(angle) * distance) ,
+						(int)dst.getY() + 100 + (int)(Math.sin(angle) * distance)
+					));
+				}
+				
+				// Si bataille, animation de bataille
+				if(tsPacket.transferType == 2)
+				{
+					
+					// particules de bataille
+					for(int i=0; i < 20 + r.nextInt(20); i++)
+					{
+						double angle = r.nextDouble() * Math.PI * 2;
+						double distance = r.nextDouble() * dst.getDiameter() / 3;
+						
+						this.ui.spawnParticle(new NotUIParticleExplode(
+							30 + (int)r.nextInt(55),
+							(int)dst.getX() + 75 + (int)(Math.cos(angle) * distance),
+							(int)dst.getY() + 100 + (int)(Math.sin(angle) * distance)
+						));
+					}
+				}
+				
+				// Si renforcement, animation de renfort
+				if(tsPacket.transferType == 1)
+				{
+					
+					// particules de renfort
+					this.ui.spawnParticle(new NotUIParticleShield(
+						(int)dst.getX() + 75,
+						(int)dst.getY() + 100 - dst.getDiameter() / 4 - 18
+					));
+				}
 				
 				break;
 				

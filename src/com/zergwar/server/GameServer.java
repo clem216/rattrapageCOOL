@@ -37,8 +37,8 @@ public class GameServer implements NetworkEventListener {
 
 	// constants
 	public static int SERVER_PORT = 65530;     // < 1024, w/firewall ou > 1024 avec
-	public static int MAX_CLIENTS = 8;         // limiter a 2 dans l'exemple
-	public static int INACTIVITY_DELAY = 1000; // ms
+	public static int MAX_CLIENTS = 8;         // limité a 2 dans l'exemple
+	public static int INACTIVITY_DELAY = 10000; // ms
 	public static int currentPlayerID;
 	
 	public static final int ST_GAME_LOBBY   = 0;
@@ -50,10 +50,10 @@ public class GameServer implements NetworkEventListener {
 	
 	// Couleurs & noms de joueurs possibles
 	public static Color[] colorTable = {
-		Color.red,
-		Color.blue,
-		Color.green,
-		Color.yellow,
+		Color.decode("#4286f4"),
+		Color.decode("#e82200"),
+		Color.decode("#8ee806"),
+		Color.decode("#ea9604"),
 		Color.magenta,
 		Color.cyan,
 		Color.pink,
@@ -424,22 +424,28 @@ public class GameServer implements NetworkEventListener {
 		
 		int armiesToTransfer = (int)Math.round(src.getArmyCount() / 2);
 		int armiesRemaining = src.getArmyCount() - armiesToTransfer;
-	
+		int transferType = 0; // 0 : colonize, 1 : reinforce, 2 : battle
+		
 		// Suivant le propriétaire, combat ou pas combat
 		if(dst.getOwnerID() != src.getOwnerID())
 		{
+			transferType = 2;
+			
 			int battleResult = dst.getArmyCount() - armiesToTransfer;
 			if(battleResult >= 0)
 				dst.setArmyCount(battleResult);
 			else
 			{
+				if( dst.getOwnerID() == -1 )
+					transferType = 0;
+				
 				// Changement de proprio
 				dst.setArmyCount(-battleResult);
 				dst.setOwner(this.currentPlayer.getPlayerId());
 			}
 		} else
 		{
-			dst.setOwner(this.currentPlayer.getPlayerId());
+			transferType = 1;
 			dst.setArmyCount(dst.getArmyCount() + armiesToTransfer);
 		}
 		
@@ -447,7 +453,11 @@ public class GameServer implements NetworkEventListener {
 		src.setArmyCount(armiesRemaining);
 		
 		// notification du transfert réussi
-		this.sendThread.broadcastPacket(new Packet15TransfertSuccess(), null);
+		this.sendThread.broadcastPacket(new Packet15TransfertSuccess(
+			src.getName(),
+			dst.getName(),
+			transferType
+		), null);
 		
 		// ... et synchro de la source et de la dest
 		this.sendThread.broadcastPacket(new Packet10PlanetaryUpdate(
@@ -751,7 +761,7 @@ public class GameServer implements NetworkEventListener {
 		for(NetworkClient client : this.netAgent.getClients())
 			if(client.getReady())
 				rdyCount++;
-		return (rdyCount > 1) && rdyCount == this.netAgent.getClients().size();
+		return (rdyCount > 0) && rdyCount == this.netAgent.getClients().size(); // TODO >1
 	}
 
 	/**
@@ -828,10 +838,14 @@ public class GameServer implements NetworkEventListener {
 		 */
 		public void processNextTransaction()
 		{
-			if(transactionQueue.size() > 0)
-				this.currentTransaction = this.transactionQueue.remove(0);
-			else
+			try {
+				if(transactionQueue.size() > 0)
+					this.currentTransaction = this.transactionQueue.remove(0);
+				else
+					return;
+			} catch(Exception e) {
 				return;
+			}
 			
 			try {
 				Packet packetToSend = this.currentTransaction.getPacket();

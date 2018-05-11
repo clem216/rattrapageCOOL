@@ -178,7 +178,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	 * Ajoute une particule à la scène
 	 * @param notUIParticleRegen
 	 */
-	public void spawnParticle(NotUIParticleRegen particle)
+	public void spawnParticle(NotUIParticle particle)
 	{
 		// Particles dispo uniquement en enhanced mode
 		if(this.enhancedMode)
@@ -295,6 +295,11 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 					c = player.getPlayerColor();
 				
 				NotUIUtils.renderPlanet(g, p, tick, c);
+				
+				if(p.isEmpty())
+					drawCenteredString(g, Color.gray, regular.deriveFont(16f), p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 118 + p.getDiameter() / 4 + 20);
+				else
+					drawCenteredString(g, this.client.getRemotePlayerByID(p.getOwnerID()).getPlayerColor(), bold.deriveFont(16f), p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 118 + p.getDiameter() / 4 + 20);
 			}
 			
 			// Si hovered
@@ -357,7 +362,13 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 			}
 			
 			// Si une planète est sélectionnée ET une est hovered
-			if(this.client.getSelectedPlanet() != null && this.client.getHoveredPlanet() != null && this.client.getTargetPlanet() == null) {
+			if(this.client.getSelectedPlanet() != null
+				&& this.client.getHoveredPlanet() != null
+				&& this.client.getTargetPlanet() == null
+				&& this.client.galaxy.getRoute(
+					this.client.getHoveredPlanet().getName(),
+					this.client.getSelectedPlanet().getName()) != null )
+			{
 				g.setColor(Color.white);
 				g.setStroke(new BasicStroke((int)(3+1.5d* Math.sin(tick))));
 				g.drawLine(
@@ -383,7 +394,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 				g.setStroke(new BasicStroke(1));
 			}
 			
-			drawCenteredString(g, Color.WHITE, regular, p.getName(), (int)p.getX() + 75, (int)p.getY() + 100+ p.getDiameter() / 4 + 20);
+			drawCenteredString(g, (p == this.client.getHoveredPlanet())?Color.cyan:Color.white, regular, p.getName(), (int)p.getX() + 75, (int)p.getY() + 100+ p.getDiameter() / 4 + 20);
 		}
 		
 		// affiche les joueurs connectés
@@ -604,11 +615,14 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	 * Dessine une chaine centrée aux coordonnées spécifiée
 	 */
 	public void drawCenteredString(Graphics2D g, Color c, Font f, String string, int x, int y) {
+		Font backup = g.getFont();
+		g.setFont(f);
 		FontMetrics fm = g.getFontMetrics(f);
 		g.setColor(Color.BLACK);
 		g.drawString(string, x - fm.stringWidth(string) / 2, y + 2);
 		g.setColor(c);
 		g.drawString(string, x - fm.stringWidth(string) / 2, y);
+		g.setFont(backup);
 	}
 	
 	/**

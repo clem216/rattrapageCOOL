@@ -31,6 +31,13 @@ public abstract class NotUIParticle
 	}
 	
 	/**
+	 * Kills the particle
+	 */
+	public void die() {
+		this.timeToLife = 0;
+	}
+	
+	/**
 	 * Renvoie si la particule est en vie
 	 * @return
 	 */

@@ -9,14 +9,14 @@ public class NotUIParticleRegen extends NotUIParticle
 	private String delta;
 
 	public NotUIParticleRegen(int delta, float x, float y) {
-		super(30, x, y);
+		super(60, x, y);
 		this.delta = (delta>0) ? ("+"+delta) : ""+delta;
 	}
 	
 	@Override
 	public void tick() {
 		super.tick();
-		setY(getY() - 1);
+		setY(getY() - .3f);
 	}
 	
 	@Override
