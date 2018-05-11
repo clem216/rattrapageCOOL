@@ -24,6 +24,7 @@ import com.zergwar.client.GameClient;
 import com.zergwar.client.RemotePlayer;
 import com.zergwar.common.Planet;
 import com.zergwar.common.Route;
+import com.zergwar.network.packets.Packet12PlanetSelect;
 
 public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMotionListener {
 
@@ -104,7 +105,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 						g.dispose();
 						bufferStrategy.show();
 						
-						long remainingToSleep = 20 - (System.currentTimeMillis() - lastrenderTime);
+						long remainingToSleep = 40 - (System.currentTimeMillis() - lastrenderTime);
 						if(remainingToSleep < 0 ) remainingToSleep = 0;
 						lastrenderTime = System.currentTimeMillis();
 						
@@ -382,7 +383,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 				g.setFont(regular);
 				g.drawString("Veuillez déplacer vos unités", 65, 700);
 				g.drawString("Cliquez sur la planète source, puis cible pour déplacer vos armées", 65, 720);
-				g.drawString("Attention : Cette action n'est PAS réversible !", 65, 740);
+				g.drawString("Appuyez sur <ECHAP> pour déselectionner une planète", 65, 740);
 			} else
 			{
 				g.setColor(Color.white);
@@ -591,6 +592,14 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 			case KeyEvent.VK_ESCAPE:
 				if(this.client.getState() == ClientState.IN_VICTORY_MENU) {
 					this.client.resetClient();
+				} else if(this.client.getState() == ClientState.IN_GAME
+						  && this.client.isMyTurn()) {
+					this.client.setSelectedPlanet(null);
+					this.client.send(new Packet12PlanetSelect(
+						this.client.getPlayerId(),
+						"NONE",
+						0
+					));
 				}
 				break;
 			default: break;

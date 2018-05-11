@@ -270,6 +270,11 @@ public class GameClient {
 					this.hoveredPlanet = this.galaxy.getPlanetByName(mPacket.planetName);
 				else if(mPacket.selectionType == 3)
 					this.targetPlanet = this.galaxy.getPlanetByName(mPacket.planetName);
+				else {
+					this.targetPlanet = null;
+					this.selectedPlanet = null;
+					this.hoveredPlanet = null;
+				}
 				break;
 			case "Packet14TransfertFailure":
 				Packet14TransfertFailure tffPacket = (Packet14TransfertFailure)packet;
@@ -661,6 +666,16 @@ public class GameClient {
 	{
 		Planet p = findPlanetAtCoordinates(x, y);
 		
+		// Envoie la notification de déselection si nécessaire
+		if(p == null && this.selectedPlanet != null) {
+			this.selectedPlanet = p;
+			this.send(new Packet12PlanetSelect(
+				this.playerID,
+				"",
+				1
+			));
+		}
+		
 		if(p != null && this.getCurrentPlayer() != null)
 			if(this.getCurrentPlayer().getPlayerID() == this.playerID)
 			{
@@ -711,6 +726,15 @@ public class GameClient {
 	public void setHoveredPlanet(int x, int y)
 	{
 		Planet p = findPlanetAtCoordinates(x, y);
+		
+		// Si aucune planète survolée, notifie de la désync
+		if(p == null && this.hoveredPlanet != null)
+			this.send(new Packet12PlanetSelect(
+				this.playerID,
+				"",
+				2
+			));
+		
 		this.hoveredPlanet = p;
 		
 		if(p != null && this.getCurrentPlayer() != null)
@@ -782,5 +806,13 @@ public class GameClient {
 	public void resetClient() {
 		this.stopOnlineVerify();
 		this.initClient();
+	}
+
+	/**
+	 * Définit la planète actuellement sélectionnée
+	 * @param object
+	 */
+	public void setSelectedPlanet(Planet planet) {
+		this.selectedPlanet = planet;
 	}
 }
