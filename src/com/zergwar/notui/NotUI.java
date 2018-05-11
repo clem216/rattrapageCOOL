@@ -32,6 +32,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	private static final long serialVersionUID = 1L;
 	private Font regular, bold;
 	private GameClient client;
+	private boolean enhancedMode;
 	
 	// STATIC
 	public static final int MENU_ID_PROBING      = 0;
@@ -188,19 +189,35 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	 * @param g
 	 */
 	private void renderMenuGame(Graphics2D g) {
-		drawCenteredString(g, Color.white, bold, "ZergWar | GameBoard:: Galaxy View", getWidth() / 2, 60);
-		drawCenteredString(g, Color.gray, regular, "Jeu de conquête spatiale en tour à tour", getWidth() / 2, 80);
 		
-		g.setColor(Color.orange);
+		if(enhancedMode) {
+			g.drawImage(NotUIUtils.loadTex("space.png"), (int)(this.tick/8)%1920, 0, null);
+			g.drawImage(NotUIUtils.loadTex("space.png"), (int)(this.tick/8)%1920, 0, -1920, 1080, null);
+			g.drawImage(NotUIUtils.loadTex("gameui.png"), 10, 30, null);
+		} else {
+			drawCenteredString(g, Color.white, bold, "ZergWar | GameBoard:: Galaxy View", getWidth() / 2, 60);
+			drawCenteredString(g, Color.gray, regular, "Jeu de conquête spatiale en tour à tour", getWidth() / 2, 80);
+		}
+		
+		if(enhancedMode)
+			g.setColor(new Color(255, 255, 255, 96));
+		else
+			g.setColor(Color.orange);
 		
 		for(Route r : this.client.galaxy.routes)
 		{
+			if(enhancedMode)
+				g.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL, 0, new float[]{2,3}, 0));
+			
 			g.drawLine(
 				(int)r.getSource().getX() + 75,
 				(int)r.getSource().getY() + 100,
 				(int)r.getDest().getX() + 75,
 				(int)r.getDest().getY() + 100
 			);
+			
+			if(enhancedMode)
+				g.setStroke(new BasicStroke(1));
 		}
 		
 		g.setColor(Color.white);
@@ -212,34 +229,45 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 			}
 		}
 		
-		g.drawRect(65, 100, 860, 500);
+		if(!enhancedMode)
+			g.drawRect(65, 100, 860, 500);
 		
 		for(Planet p : this.client.galaxy.planets) {
 			
-			if(p.isEmpty()) {
-				g.setColor(Color.green);
-				g.drawArc(
-					(int)(p.getX() + 75 - p.getDiameter() / 8),
-					(int)(p.getY() + 100 - p.getDiameter() / 8),
-					p.getDiameter() / 4,
-					p.getDiameter() / 4,
-					0,
-					360
-				);
-				drawCenteredString(g, Color.gray, regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
-			} else {
-				g.setColor(this.client.getRemotePlayerByID(p.getOwnerID()).getPlayerColor());
-				g.fillArc(
-					(int)(p.getX() + 75 - p.getDiameter() / 8),
-					(int)(p.getY() + 100 - p.getDiameter() / 8),
-					p.getDiameter() / 4,
-					p.getDiameter() / 4,
-					0,
-					360
-				);
-				drawCenteredString(g, this.client.getRemotePlayerByID(p.getOwnerID()).getPlayerColor(), regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
+			if(!enhancedMode)
+				if(p.isEmpty()) {
+					g.setColor(Color.green);
+					g.drawArc(
+						(int)(p.getX() + 75 - p.getDiameter() / 8),
+						(int)(p.getY() + 100 - p.getDiameter() / 8),
+						p.getDiameter() / 4,
+						p.getDiameter() / 4,
+						0,
+						360
+					);
+					drawCenteredString(g, Color.gray, regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
+				} else {
+					g.setColor(this.client.getRemotePlayerByID(p.getOwnerID()).getPlayerColor());
+					g.fillArc(
+						(int)(p.getX() + 75 - p.getDiameter() / 8),
+						(int)(p.getY() + 100 - p.getDiameter() / 8),
+						p.getDiameter() / 4,
+						p.getDiameter() / 4,
+						0,
+						360
+					);
+					drawCenteredString(g, this.client.getRemotePlayerByID(p.getOwnerID()).getPlayerColor(), regular, p.getArmyCount() + "/" + "\u221E", (int)p.getX() + 75, (int)p.getY() + 120 + p.getDiameter() / 4 + 20);
+				}
+			
+			if(enhancedMode) {
+				RemotePlayer player = this.client.getRemotePlayerByID(p.getOwnerID());
+				Color c = null;
+				if(player != null)
+					c = player.getPlayerColor();
+				
+				NotUIUtils.renderPlanet(g, p, tick, c);
 			}
-		
+			
 			// Si hovered
 			if(this.client.getState() == ClientState.IN_GAME)
 			if(p.equals(this.client.getHoveredPlanet())) {
@@ -485,7 +513,7 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 	 */
 	private void renderMenuError(Graphics2D g) {
 		drawCenteredString(g, Color.red, regular, "!! Une erreur est survenue !!", getWidth() / 2, getHeight() / 2 - 12);
-		drawCenteredString(g, Color.orange, regular, "Erreur : "+client.getCurrentException(), getWidth() / 2, getHeight() / 2 + 12);
+		drawCenteredString(g, Color.orange, regular, "Erreur : "+client.getCurrentStatus(), getWidth() / 2, getHeight() / 2 + 12);
 	}
 	
 	/**
@@ -601,6 +629,9 @@ public class NotUI extends JFrame implements KeyListener, MouseListener, MouseMo
 						0
 					));
 				}
+				break;
+			case KeyEvent.VK_B:
+				enhancedMode = !enhancedMode;
 				break;
 			default: break;
 		}

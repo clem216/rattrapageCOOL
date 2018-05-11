@@ -538,6 +538,7 @@ public class GameClient {
 				}
 			} catch(Exception e) {
 				Logger.log("Client crashed : " + e);
+				this.client.status = "Aucun serveur n'a été trouvé à cette addresse";
 				die(NetworkCode.ERR_GENERIC);
 			}
 		}
