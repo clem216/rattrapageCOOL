@@ -1,6 +1,7 @@
 package com.zergwar.server;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,6 +22,7 @@ import com.zergwar.network.packets.Packet17AlreadyInGame;
 import com.zergwar.network.packets.Packet1Planet;
 import com.zergwar.network.packets.Packet2Route;
 import com.zergwar.network.packets.Packet3PlayerJoin;
+import com.zergwar.network.packets.Packet4PlayerLeave;
 import com.zergwar.network.packets.Packet5PlayerInfo;
 import com.zergwar.network.packets.Packet6ProbePing;
 import com.zergwar.network.packets.Packet8ReadyNotReady;
@@ -78,6 +80,7 @@ public class GameServer implements NetworkEventListener {
 	private int remainingTransfers;
 	private CopyOnWriteArrayList<NetworkClient> remainingInTurn;
 	private int mapIndex;
+	private NetworkSendThread sendThread;
 	
 	public GameServer(int mapIndex) {
 		this.mapIndex = mapIndex;
@@ -92,6 +95,7 @@ public class GameServer implements NetworkEventListener {
 		this.galaxy = new Galaxy(mapIndex);
 		this.probeBeacon = new Timer();
 		this.remainingInTurn = new CopyOnWriteArrayList<NetworkClient>();
+		this.sendThread = new NetworkSendThread();
 		this.netAgent = new NetworkAgent(SERVER_PORT);
 		this.netAgent.registerNetworkListener(this);
 		this.initCleanThread();
@@ -161,7 +165,7 @@ public class GameServer implements NetworkEventListener {
 		{
 			public void run()
 			{
-				netAgent.broadcast(
+				sendThread.broadcastPacket(
 					new Packet6ProbePing(System.currentTimeMillis()),
 					null
 				);
@@ -181,7 +185,7 @@ public class GameServer implements NetworkEventListener {
 	{
 		// Reject inbound connections if in game
 		if(this.inGame) {
-			client.sendPacket(new Packet17AlreadyInGame());
+			this.sendThread.sendPacket(client, new Packet17AlreadyInGame());
 			return;
 		}
 
@@ -190,7 +194,7 @@ public class GameServer implements NetworkEventListener {
 		// Synchro : réponse au handshake
 		client.setState(NetworkClientState.HANDSHAKED);
 		Logger.log("Replying to client "+client+" handshake !");
-		client.sendPacket(new Packet0Handshake());
+		this.sendThread.sendPacket(client, new Packet0Handshake());
 		
 		// Synchro plateau : les planètes
 		Logger.log("Starting planet datasync...");
@@ -206,13 +210,7 @@ public class GameServer implements NetworkEventListener {
 				p.getArmyCount()
 			);
 			
-			try {
-				pPacket.build();
-				client.sendPacket(pPacket);
-			} catch(Exception e) {
-				Logger.log("Couldn't send sync info for planet "+p+". reason follows.");
-				e.printStackTrace();
-			}
+			this.sendThread.sendPacket(client, pPacket);
 		}
 		
 		// ACK
@@ -228,17 +226,11 @@ public class GameServer implements NetworkEventListener {
 				r.getDest().getName()
 			);
 			
-			try {
-				rPacket.build();
-				client.sendPacket(rPacket);
-			} catch(Exception e) {
-				Logger.log("Couldn't send sync info for route "+r+". reason follows.");
-				e.printStackTrace();
-			}
+			this.sendThread.sendPacket(client, rPacket);
 		}
 		
 		// ACK
-		client.sendPacket(new Packet0Handshake());
+		this.sendThread.sendPacket(client, new Packet0Handshake());
 
 		Logger.log("Syncing own player data ...");
 		
@@ -252,14 +244,14 @@ public class GameServer implements NetworkEventListener {
 		client.setPlayerName(nameTable[currentPlayerID++]);
 		
 		// Envoi de la MaJ
-		client.sendPacket(new Packet5PlayerInfo(
+		this.sendThread.sendPacket(client, new Packet5PlayerInfo(
 			client.getPlayerName(),
 			client.getPlayerId(),
 			client.getColor().getRGB()
 		));
 		
 		// ACK
-		client.sendPacket(new Packet0Handshake());
+		this.sendThread.sendPacket(client, new Packet0Handshake());
 				
 		// Synchro des joueurs
 		Logger.log("Syncing other player references...");
@@ -273,17 +265,11 @@ public class GameServer implements NetworkEventListener {
 				cli.getReady()
 			);
 			
-			try {
-				jPacket.build();
-				client.sendPacket(jPacket);
-			} catch(Exception e) {
-				Logger.log("Couldn't send sync info for player "+cli+". reason follows.");
-				e.printStackTrace();
-			}
+			this.sendThread.sendPacket(client, jPacket);
 		}
 		
 		// Synchro à tous les joueurs
-		this.netAgent.broadcast(
+		this.sendThread.broadcastPacket(
 			new Packet3PlayerJoin(
 				client.getPlayerName(),
 				client.getPlayerId(),
@@ -299,7 +285,14 @@ public class GameServer implements NetworkEventListener {
 	@Override
 	public void onClientDisconnected(NetworkClient client, NetworkCode reason)
 	{
+		// D'abord, notification globale du quit
+		this.sendThread.broadcastPacket(
+			new Packet4PlayerLeave(client.getPlayerId()),
+			client
+		);
+		
 		Logger.log("Removing "+client+" from turn tracking list");
+		
 		if(this.remainingInTurn.size() > 0)
 			this.remainingInTurn.remove(client);
 		if(this.remainingInTurn.size() == 0)
@@ -321,7 +314,7 @@ public class GameServer implements NetworkEventListener {
 				onReadyStatusChanged(client, rPacket.readyState);
 				break;
 			case "Packet12PlanetSelect":
-				netAgent.broadcast(packet, client);
+				this.sendThread.broadcastPacket(packet, client);
 				break;
 			case "Packet13Transfert":
 				resolveTransfert(client, (Packet13Transfert)packet);
@@ -341,8 +334,9 @@ public class GameServer implements NetworkEventListener {
 	private void resolveTransfert(NetworkClient author, Packet13Transfert packet)
 	{
 		// Si la planète source est identique à la cible, abandon immédiat
-		if(packet.sourcePlanet.equals(packet.destPlanet)) {
-			this.netAgent.broadcast(new Packet14TransfertFailure(
+		if(packet.sourcePlanet.equals(packet.destPlanet))
+		{
+			this.sendThread.broadcastPacket(new Packet14TransfertFailure(
 				packet.playerID,
 				packet.sourcePlanet,
 				packet.destPlanet,
@@ -356,7 +350,7 @@ public class GameServer implements NetworkEventListener {
 		Planet src = galaxy.getPlanetByName(packet.sourcePlanet);
 		Planet dst = galaxy.getPlanetByName(packet.destPlanet);
 		if(src == null || dst == null) {
-			author.sendPacket(new Packet14TransfertFailure(
+			this.sendThread.sendPacket(author, new Packet14TransfertFailure(
 				packet.playerID,
 				packet.sourcePlanet,
 				packet.destPlanet,
@@ -369,7 +363,7 @@ public class GameServer implements NetworkEventListener {
 		// Renvoie l'ID propriétaire
 		if(src.getOwnerID() != this.currentPlayer.getPlayerId())
 		{
-			author.sendPacket(new Packet14TransfertFailure(
+			this.sendThread.sendPacket(author, new Packet14TransfertFailure(
 				packet.playerID,
 				packet.sourcePlanet,
 				packet.destPlanet,
@@ -383,18 +377,21 @@ public class GameServer implements NetworkEventListener {
 		if(author.getPlayerId() == this.currentPlayer.getPlayerId())
 		{
 			Route r = galaxy.getRoute(packet.sourcePlanet, packet.destPlanet);
-			if(r != null) {
+			
+			if(r != null)
+			{
 				resolveBattle(author, src, dst);
 			} else {
-				author.sendPacket(new Packet14TransfertFailure(
+				this.sendThread.sendPacket(author, new Packet14TransfertFailure(
 					packet.playerID,
 					packet.sourcePlanet,
-				packet.destPlanet,
+					packet.destPlanet,
 					"Aucune route ne permet de rejoindre "+packet.destPlanet+" depuis "+packet.sourcePlanet
 				));
 			}
-		} else {
-			author.sendPacket(new Packet14TransfertFailure(
+		} else
+		{
+			this.sendThread.sendPacket(author, new Packet14TransfertFailure(
 				packet.playerID,
 				packet.sourcePlanet,
 				packet.destPlanet,
@@ -415,7 +412,7 @@ public class GameServer implements NetworkEventListener {
 		// Si une seule armée ou aucun restent, le transfert est impossible
 		if(src.getArmyCount() < 2)
 		{
-			author.sendPacket(new Packet14TransfertFailure(
+			this.sendThread.sendPacket(author, new Packet14TransfertFailure(
 				author.getPlayerId(),
 				src.getName(),
 				dst.getName(),
@@ -450,16 +447,16 @@ public class GameServer implements NetworkEventListener {
 		src.setArmyCount(armiesRemaining);
 		
 		// notification du transfert réussi
-		netAgent.broadcast(new Packet15TransfertSuccess(), null);
+		this.sendThread.broadcastPacket(new Packet15TransfertSuccess(), null);
 		
 		// ... et synchro de la source et de la dest
-		netAgent.broadcast(new Packet10PlanetaryUpdate(
+		this.sendThread.broadcastPacket(new Packet10PlanetaryUpdate(
 			src.getName(),
 			src.getOwnerID(),
 			src.getArmyCount()
 		), null);
 		
-		netAgent.broadcast(new Packet10PlanetaryUpdate(
+		this.sendThread.broadcastPacket(new Packet10PlanetaryUpdate(
 			dst.getName(),
 			dst.getOwnerID(),
 			dst.getArmyCount()
@@ -488,7 +485,7 @@ public class GameServer implements NetworkEventListener {
 	private void onClientDefeated(NetworkClient defeatedClient)
 	{
 		// Notifie à tout le monde de l'élimination (victory à--1 = joueur éliminé)
-		this.netAgent.broadcast(new Packet16Victory(
+		this.sendThread.broadcastPacket(new Packet16Victory(
 			defeatedClient.getPlayerId(),
 			-1
 		), null);
@@ -516,7 +513,7 @@ public class GameServer implements NetworkEventListener {
 			this.setRemainingTransfers(getRandomTransferCount());
 			
 			// Synchro du changement de tour
-			this.netAgent.broadcast(new Packet11NewTurn(
+			this.sendThread.broadcastPacket(new Packet11NewTurn(
 				this.currentPlayer.getPlayerId(),
 				getRemainingTransfers()
 			), null);
@@ -591,7 +588,7 @@ public class GameServer implements NetworkEventListener {
 			}
 			
 			// Synchro générale
-			this.netAgent.broadcast(new Packet10PlanetaryUpdate(
+			this.sendThread.broadcastPacket(new Packet10PlanetaryUpdate(
 				p.getName(),
 				p.getOwnerID(),
 				p.getArmyCount()
@@ -605,7 +602,7 @@ public class GameServer implements NetworkEventListener {
 	 */
 	private void onGameFinished(NetworkClient victoriousClient)
 	{
-		this.netAgent.broadcast(new Packet16Victory(
+		this.sendThread.broadcastPacket(new Packet16Victory(
 			victoriousClient.getPlayerId(),
 			victoriousClient.getTotalZergCount()
 		), null);
@@ -627,7 +624,7 @@ public class GameServer implements NetworkEventListener {
 	{
 		Logger.log("Client "+client+" readyness changed");
 		client.setReady(readyState);
-		this.netAgent.broadcast(
+		this.sendThread.broadcastPacket(
 			new Packet8ReadyNotReady(client.getPlayerId(), client.getReady()),
 			null
 		);
@@ -646,7 +643,7 @@ public class GameServer implements NetworkEventListener {
 		this.inGame = true;
 		
 		// Notifie les clients du début de la partie
-		this.netAgent.broadcast(new Packet9GameStart(), null);
+		this.sendThread.broadcastPacket(new Packet9GameStart(), null);
 		
 		// Attend 3 secondes avant d'envoyer les positions
 		// de départ
@@ -677,7 +674,7 @@ public class GameServer implements NetworkEventListener {
 			
 			/* Envoie la mise à jour de la planète de départ
 			 * à tous les joueurs de la partie   		 */
-			this.netAgent.broadcast(new Packet10PlanetaryUpdate(
+			this.sendThread.broadcastPacket(new Packet10PlanetaryUpdate(
 				p.getName(),
 				p.getOwnerID(),
 				p.getArmyCount()
@@ -703,7 +700,7 @@ public class GameServer implements NetworkEventListener {
 			this.setCurrentPlayer(firstPlayer);
 			this.setRemainingTransfers(getRandomTransferCount());
 			
-			this.netAgent.broadcast(new Packet11NewTurn(
+			this.sendThread.broadcastPacket(new Packet11NewTurn(
 				firstPlayer.getPlayerId(),
 				getRemainingTransfers()
 			), null);
@@ -754,7 +751,7 @@ public class GameServer implements NetworkEventListener {
 		for(NetworkClient client : this.netAgent.getClients())
 			if(client.getReady())
 				rdyCount++;
-		return (rdyCount > 1) && rdyCount == this.netAgent.getClients().size(); // TODO >1
+		return (rdyCount > 1) && rdyCount == this.netAgent.getClients().size();
 	}
 
 	/**
@@ -784,5 +781,73 @@ public class GameServer implements NetworkEventListener {
 	@Override
 	public void onNetworkError(NetworkCode error, String errorMessage) {
 		Logger.log("Network error -> "+error+" ("+errorMessage+")");
+	}
+	
+	/*********************************
+	 * NETWORK SENDER THREAD
+	 */
+	public class NetworkSendThread extends Thread implements Runnable
+	{
+		private CopyOnWriteArrayList<NetworkTransaction> transactionQueue;
+		private NetworkTransaction currentTransaction;
+		
+		/**
+		 * Instancie la file asynchrone d'envoi
+		 */
+		public NetworkSendThread() {
+			this.transactionQueue = new CopyOnWriteArrayList<NetworkTransaction>();
+		}
+		
+		/**
+		 * Ajoute un paquet à la file d'envoi
+		 * @param packet
+		 */
+		public void sendPacket(NetworkClient client, Packet packet)
+		{
+			this.transactionQueue.add(new NetworkTransaction(
+				client,
+				packet
+			));
+			
+			// Si la pile précédente est traitée, reprise
+			if(this.currentTransaction == null)
+				processNextTransaction();
+		}
+		
+		public void broadcastPacket(Packet packet, NetworkClient author)
+		{
+			for(NetworkClient cli : netAgent.getClients())
+			{
+				if(cli != author)
+					sendPacket(cli, packet);
+			}
+		}
+		
+		/**
+		 * Dépile le paquet suivant de la liste
+		 */
+		public void processNextTransaction()
+		{
+			if(transactionQueue.size() > 0)
+				this.currentTransaction = this.transactionQueue.remove(0);
+			else
+				return;
+			
+			try {
+				Packet packetToSend = this.currentTransaction.getPacket();
+				packetToSend.build();
+				
+				if(this.currentTransaction.getClient() != null)
+					this.currentTransaction.getClient().sendPacket(packetToSend);
+				else
+					Logger.log("Skipping transaction to NULL client. Should not happen.");
+			} catch (IOException e) {
+				Logger.log("Skipping a malformed packet.");
+			}
+			
+			// Dépile le suivant
+			this.currentTransaction = null;
+			processNextTransaction();
+		}
 	}
 }

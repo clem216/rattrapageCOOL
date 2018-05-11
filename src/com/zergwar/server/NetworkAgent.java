@@ -5,7 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.CopyOnWriteArrayList;
 import com.zergwar.network.packets.Packet;
-import com.zergwar.network.packets.Packet4PlayerLeave;
 import com.zergwar.util.log.Logger;
 
 /**
@@ -177,16 +176,11 @@ public class NetworkAgent {
 	 * @param networkClient
 	 */
 	public void onClientDisconnected(NetworkClient networkClient, NetworkCode reason)
-	{			
-		// D'abord, notifier du quit
-		this.broadcast(
-			new Packet4PlayerLeave(networkClient.getPlayerId()),
-			networkClient
-		);
-		
+	{
 		// Ensuite, MaJ du datamodel
 		for(NetworkEventListener listener : this.listeners)
 			listener.onClientDisconnected(networkClient, reason);
+		
 		this.clients.remove(networkClient);
 	}
 
@@ -195,20 +189,10 @@ public class NetworkAgent {
 	 * @param networkClient
 	 * @param packet
 	 */
-	public void onPacketReceived(NetworkClient networkClient, Packet packet) {
+	public void onPacketReceived(NetworkClient networkClient, Packet packet)
+	{
 		for(NetworkEventListener listener : this.listeners)
 			listener.onClientPacketReceived(networkClient, packet);
-	}
-
-	/**
-	 * Envoie un paquet à tous les clients (author-exclusif)
-	 * @param packet
-	 * @param author 
-	 */
-	public void broadcast(Packet packet, NetworkClient author) {
-		for(NetworkClient client : this.clients)
-			if(client != author)
-				client.sendPacket(packet);
 	}
 
 	/**

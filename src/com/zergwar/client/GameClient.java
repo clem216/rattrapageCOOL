@@ -153,7 +153,9 @@ public class GameClient {
 	 */
 	public void onPacketReceived(Packet packet)
 	{
-		switch(packet.getClass().getSimpleName()) {
+		switch(packet.getClass().getSimpleName())
+		{
+			// Traitement du paquet de Handshake
 			case "Packet0Handshake":
 				if(this.state == ClientState.IDLE)
 				{
@@ -171,6 +173,8 @@ public class GameClient {
 					this.state = ClientState.IN_LOBBY;
 				}
 				break;
+			
+			// Traitement du paquet "nouvelle planète enregistrée"
 			case "Packet1Planet":
 				if(this.state == ClientState.SYNCING_PLANETS) {
 					Packet1Planet pPacket = (Packet1Planet)packet;
@@ -186,6 +190,8 @@ public class GameClient {
 					));
 				}
 				break;
+				
+			// Traitement du paquet "Nouvelle route enregistrée"
 			case "Packet2Route":
 				if(this.state == ClientState.SYNCING_ROUTES) {
 					Packet2Route rPacket = (Packet2Route)packet;
@@ -197,6 +203,8 @@ public class GameClient {
 					));
 				}
 				break;
+			
+			// Traitement du paquet "Nouveau joueur dans la partie"
 			case "Packet3PlayerJoin":
 				Packet3PlayerJoin jPacket = (Packet3PlayerJoin)packet;
 				this.status = "[ Player " + jPacket.playerName + " joined the game ]";
@@ -207,6 +215,8 @@ public class GameClient {
 					new Color(jPacket.playerColor)
 				));
 				break;
+				
+			// Traitement du paquet "Un joueur a quitté la partie"
 			case "Packet4PlayerLeave":
 				Packet4PlayerLeave lPacket = (Packet4PlayerLeave)packet;
 				RemotePlayer ply = getRemotePlayerByID(lPacket.playerID);
@@ -216,6 +226,8 @@ public class GameClient {
 					this.players.remove(ply);
 				}
 				break;
+			
+			// Traitement du paquet "Info joueur"
 			case "Packet5PlayerInfo":
 				Packet5PlayerInfo iPacket = (Packet5PlayerInfo)packet;
 				this.playerID = iPacket.playerID;
@@ -224,21 +236,29 @@ public class GameClient {
 				this.status = "[ Receiving your initial data from server ]";
 				ui.repaint();
 				break;
+				
+			// Traitement du paquet "Ping"
 			case "Packet6ProbePing":
 				Packet6ProbePing pPacket = (Packet6ProbePing)packet;
 				this.send(new Packet7ProbePong());
 				this.serverTimestamp = pPacket.timestamp;
 				this.ui.repaint();
 				break;
+				
+			// Traitement du paquet "ready ou pas"
 			case "Packet8ReadyNotReady":
 				Packet8ReadyNotReady rPacket = (Packet8ReadyNotReady)packet;
 				RemotePlayer rPly = this.getRemotePlayerByID(rPacket.playerID);
 				if(rPly != null)
 					rPly.setReady(rPacket.readyState);
 				break;
+				
+			// Traitement du paquet "Démarrage de la partie"
 			case "Packet9GameStart":
 				this.state = ClientState.GAME_STARTING;
 				break;
+				
+			// Traitement du paquet "Mise à jour planétaire"
 			case "Packet10PlanetaryUpdate":
 				if(this.state == ClientState.GAME_STARTING)
 					this.state = ClientState.IN_GAME;
@@ -252,6 +272,8 @@ public class GameClient {
 					p.setArmyCount(uPacket.armyCount);
 				}
 				break;
+				
+			// Traitement du paquet "Nouveau tour"
 			case "Packet11NewTurn":
 				Packet11NewTurn tPacket = (Packet11NewTurn)packet;
 				
@@ -262,9 +284,11 @@ public class GameClient {
 				this.currentPlayer = this.getRemotePlayerByID(tPacket.playerID);
 				this.remainingTransfers = tPacket.transferCount;
 				break;
+				
+			// Traitement du paquet "Sélectionne une planète"
 			case "Packet12PlanetSelect":
 				Packet12PlanetSelect mPacket = (Packet12PlanetSelect)packet;
-				System.out.println("Received update selection status for "+mPacket.planetName);
+				
 				if(mPacket.selectionType == 1)
 					this.selectedPlanet = this.galaxy.getPlanetByName(mPacket.planetName);
 				else if(mPacket.selectionType == 2)
@@ -276,7 +300,10 @@ public class GameClient {
 					this.selectedPlanet = null;
 					this.hoveredPlanet = null;
 				}
+				
 				break;
+				
+			// Traitement du paquet "Transfert échoué"
 			case "Packet14TransfertFailure":
 				Packet14TransfertFailure tffPacket = (Packet14TransfertFailure)packet;
 				
@@ -289,6 +316,8 @@ public class GameClient {
 				this.targetPlanet = null;
 				
 				break;
+				
+			// Traitement du paquet "réussite de transfert"
 			case "Packet15TransfertSuccess":
 				this.remainingTransfers--;
 				
@@ -297,6 +326,8 @@ public class GameClient {
 				this.targetPlanet = null;
 				
 				break;
+				
+			// Traitement du paquet "Victoire / Elimination"
 			case "Packet16Victory":
 				
 				this.selectedPlanet = null;
@@ -318,6 +349,8 @@ public class GameClient {
 				}
 				
 				break;
+				
+			// Traitement du paquet "Déjà en jeu"
 			case "Packet17AlreadyInGame":
 				this.state = ClientState.IN_ALREADY_IG_MENU;
 				this.ui.setMenu(NotUI.MENU_ID_ALREADYIG);
