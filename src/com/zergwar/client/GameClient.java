@@ -52,8 +52,9 @@ public class GameClient {
 	
 	private RemotePlayer currentPlayer;
 	private int remainingTransfers;
-	
+
 	private Timer onlineVerifyTimer;
+	private NetworkSendThread sendThread;
 	
 	private Planet targetPlanet;
 	private Planet hoveredPlanet;
@@ -61,9 +62,8 @@ public class GameClient {
 
 	private String serverIP;
 	private int serverPort;
-	
-	private RemotePlayer winner;
 
+	private RemotePlayer winner;
 	private int winningZergs;
 	
 	public GameClient(String serverIP, int port)
@@ -85,6 +85,7 @@ public class GameClient {
 		this.state = ClientState.IDLE;
 		this.galaxy = new Galaxy(-1); // Not loaded locally
 		this.players = new CopyOnWriteArrayList<RemotePlayer>();
+		this.sendThread = new NetworkSendThread();
 		this.networkThread = new NetworkThread(this);
 		this.networkThread.connect(this.serverIP, this.serverPort);
 		this.playerID = -1;
@@ -369,14 +370,9 @@ public class GameClient {
 	 * Envoie un paquet au serveur
 	 * @param handshake
 	 */
-	public void send(Packet packet) {
-		try {
-			packet.build();
-			this.networkThread.sendRaw(packet.getData());
-		} catch (IOException e) {
-			Logger.log("Unable to send packet "+packet+", build failed !");
-			e.printStackTrace();
-		}
+	public void send(Packet packet)
+	{
+		this.sendThread.sendPacket(packet);
 	}
 
 	public void die(NetworkCode err) {
@@ -814,5 +810,56 @@ public class GameClient {
 	 */
 	public void setSelectedPlanet(Planet planet) {
 		this.selectedPlanet = planet;
+	}
+	
+	/*************************************
+	 * NETWORK SENDER THREAD
+	 */
+	public class NetworkSendThread extends Thread implements Runnable
+	{
+		private CopyOnWriteArrayList<Packet> packetQueue;
+		private Packet currentPacket;
+		
+		/**
+		 * Instancie la file asynchrone d'envoi
+		 */
+		public NetworkSendThread() {
+			this.packetQueue = new CopyOnWriteArrayList<Packet>();
+		}
+		
+		/**
+		 * Ajoute un paquet à la file d'envoi
+		 * @param packet
+		 */
+		public void sendPacket(Packet packet)
+		{
+			this.packetQueue.add(packet);
+			
+			// Si la pile précédente est traitée, reprise
+			if(this.currentPacket == null)
+				sendNextPacket();
+		}
+		
+		/**
+		 * Dépile le paquet suivant de la liste
+		 */
+		public void sendNextPacket()
+		{
+			if(packetQueue.size() > 0)
+				this.currentPacket = this.packetQueue.remove(0);
+			else
+				return;
+			
+			try {
+				this.currentPacket.build();
+				networkThread.sendRaw(this.currentPacket.getData());
+			} catch (IOException e) {
+				Logger.log("Skipping a malformed packet.");
+			}
+			
+			// Dépile le suivant
+			this.currentPacket = null;
+			sendNextPacket();
+		}
 	}
 }
