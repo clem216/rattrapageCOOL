@@ -2,6 +2,8 @@
 
 Turn-based galactic conquest strategy game. Sample for demonstration purposes only.
 
+![Ingame Content](https://raw.githubusercontent.com/clemoverkiz/RattrapageCOOL/zergwar-ptf/doc/game.png)
+
 # Specifications
 
 - Up to 8 players
